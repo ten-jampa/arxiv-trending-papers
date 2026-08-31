@@ -2,45 +2,67 @@
 
 ## Project Stage
 
-This repository is currently in the specification and architecture-shaping stage.
+This repository is in **Stage 1: artifact contracts**.
 
-Do not jump straight to a full E2E product. First preserve and update the artifacts in `_docs/`.
+The first product slice is intentionally vertical and narrow:
+
+```text
+one arXiv paper -> resolved authors -> founder signals -> Markdown founder-sourcing brief
+```
+
+Do not expand into batch ingestion, cron, dashboards, lab graphs, or generic paper digests until the v0 gate in `_docs/vertical-slice-v0.md` passes.
+
+## Source Of Truth
+
+Before code changes, read these in order:
+
+1. `_docs/spec.md`
+2. `_docs/system-design.md`
+3. `_docs/vertical-slice-v0.md`
+4. `_docs/cli-contract.md`
+5. `_docs/data-contract.md`
+6. `_docs/source-smoketests.md`
 
 ## Change Discipline
 
 - Keep changes small and artifact-gated.
-- Start implementation from `_docs/spec.md` and `_docs/solution-shape.md`.
-- Update docs when implementation reality changes.
+- Every pipeline stage must write an inspectable artifact.
+- Facts in final briefs must trace to source URLs in artifacts.
+- Sparse and true beats rich and fake.
+- Unknown fields must be `not found`, `not checked`, or `unresolved`.
+- Do not merge author identities by name alone.
 - Do not add external paid services or secrets.
-- Do not add deployment until local CLI usefulness is proven.
+- Do not add deployment/cron until the single-paper founder brief is useful.
 
 ## Verification Expectations
 
 For documentation-only changes:
 
-- Check file presence.
-- Check Markdown is readable.
-- Review git diff.
+- Check required files exist.
+- Check docs mention the v0 vertical slice.
+- Review git diff before committing.
 
-For code changes once they exist:
+For code changes:
 
-- Run tests.
-- Run a CLI smoke check.
-- Include the exact command output in the handoff.
+- Run unit tests.
+- Run a CLI smoke test against one real arXiv ID if network is available.
+- Verify generated artifacts exist.
+- Include exact command output in the handoff.
 
-## Side-Effect Boundaries
-
-Allowed without extra approval:
+## Allowed Side Effects Without Extra Approval
 
 - Local files in this repository.
 - Local tests and static checks.
 - Public unauthenticated GET requests for research APIs.
+- Git commits.
+- Git pushes when the user explicitly asks to push.
 
-Ask before:
+## Ask Before
 
-- Pushing to GitHub.
 - Creating cron jobs.
 - Writing to Obsidian.
 - Posting/sending scheduled messages.
 - Adding paid APIs or credentials.
 - Deploying anything.
+- Automated outreach.
+- Broad people-search scraping.

@@ -1,127 +1,116 @@
 # CLI Contract
 
-The first implementation surface is a local CLI. It exists to produce an investment/sourcing research brief, not to be a generic arXiv browser.
+The CLI exists to support a vertical founder-sourcing workflow. It should not become a generic paper dashboard.
 
-## Command: `arxiv-trending smoke-sources`
+## v0 Command: `founder-radar founder-brief`
 
-Purpose: verify what can currently be fetched and parsed from configured public sources.
-
-```bash
-arxiv-trending smoke-sources --config config/watchlists.yaml
-```
-
-Expected behavior:
-
-- Fetch a small sample from arXiv.
-- Optionally fetch Hugging Face Papers Trending.
-- Optionally fetch DAIR.AI raw Markdown.
-- Print source availability, fields detected, and parser confidence.
-- Exit nonzero if arXiv is unavailable.
-- Do not write investment conclusions.
-
-## Command: `arxiv-trending brief`
-
-Purpose: produce a Markdown brief of new/high-signal papers.
+Purpose: generate a founder-sourcing brief from one arXiv paper.
 
 ```bash
-arxiv-trending brief \
-  --days 7 \
-  --max 10 \
-  --config config/watchlists.yaml \
-  --source arxiv \
-  --source dair \
-  --output output/brief.md
+founder-radar founder-brief <arxiv-id-or-url> \
+  --output artifacts/<run_id>/founder_brief.md
 ```
 
-Defaults:
-
-- `--days`: `7`
-- `--max`: `10`
-- `--config`: `config/watchlists.yaml`
-- `--output`: stdout if omitted
-- sources: `arxiv` only until optional parsers are implemented and smoke-tested
-
-Expected output sections:
-
-```markdown
-# AI Research Alt-Signal Brief — YYYY-MM-DD
-
-## Top Investment/Sourcing Signals
-
-## RL / Agents Watchlist
-
-## Quiet But Potentially Important
-
-## Curated External Picks
-
-## Source Coverage And Gaps
-```
-
-Each paper item must include:
-
-- title
-- source links
-- arXiv ID when available
-- authors
-- published/updated date
-- matched categories
-- matched watchlists and keywords
-- score breakdown
-- recommendation: `read`, `skim`, `save`, `watch`, or `ignore`
-- investment/sourcing relevance note
-- caveats / missing data
-
-## Command: `arxiv-trending collect`
-
-Purpose: fetch and cache normalized source data without generating a brief.
-
-```bash
-arxiv-trending collect --days 7 --source arxiv --source dair
-```
-
-Expected behavior:
-
-- Write normalized paper records to local SQLite.
-- Write raw-source fetch metadata.
-- Do not overwrite manually attached notes.
-
-## Command: `arxiv-trending score`
-
-Purpose: recompute scores from cached papers/signals.
-
-```bash
-arxiv-trending score --max 25
-```
-
-Expected behavior:
-
-- Recompute score breakdowns deterministically.
-- Print top scored items or write them to the database.
-
-## Exit Codes
-
-- `0`: success.
-- `1`: invalid arguments or config.
-- `2`: required source unavailable.
-- `3`: parser failed against fetched source shape.
-- `4`: local storage error.
-
-## Generated Files
-
-Suggested local files:
+Accepted input forms:
 
 ```text
-/data/arxiv_trending.sqlite3
-/output/brief-YYYY-MM-DD.md
-/output/source-smoke-YYYY-MM-DD.json
+2608.28447
+2608.28447v1
+https://arxiv.org/abs/2608.28447
+https://arxiv.org/pdf/2608.28447
 ```
 
-`data/` and `output/` are ignored by git.
+Options:
+
+- `--output PATH`: write final Markdown brief to a path. If omitted, print to stdout and still write intermediate artifacts unless `--no-artifacts` exists later.
+- `--artifacts-dir PATH`: default `artifacts/<timestamp>-<arxiv-id>/`.
+- `--no-semantic-scholar`: skip Semantic Scholar author/paper enrichment.
+- `--raw-only`: fetch and write artifacts without generating judgment-heavy founder hypotheses.
+
+Required artifacts:
+
+```text
+candidate_paper.json
+resolved_authors.json
+founder_signals.json
+founder_brief.md
+```
+
+Exit codes:
+
+- `0`: success.
+- `1`: invalid input/config.
+- `2`: arXiv unavailable or paper not found.
+- `3`: enrichment source failed but arXiv succeeded and strict mode required it.
+- `4`: artifact write failure.
+
+## Later Command: `founder-radar smoke-sources`
+
+Purpose: verify which sources can currently be fetched and parsed.
+
+```bash
+founder-radar smoke-sources
+```
+
+Checks:
+
+- arXiv API availability.
+- Semantic Scholar paper lookup availability.
+- Hugging Face Papers Trending page shape, once parser exists.
+- DAIR.AI raw Markdown shape, once parser exists.
+
+## Later Command: `founder-radar discover`
+
+Purpose: produce candidate paper artifacts from trending/curated sources. Not v0.
+
+```bash
+founder-radar discover --source arxiv --source hf --source dair --max 20
+```
+
+This command must not generate founder conclusions. It only outputs candidate papers.
 
 ## Hallucination Boundary
 
-The CLI must not emit metrics that were not fetched. Examples:
+The CLI must not emit metrics or profiles that were not fetched.
 
-- If Hugging Face upvote extraction fails, write `HF signal: not checked` or omit it.
-- If GitHub repo signal is not implemented, write `GitHub signal: not checked`.
+Examples:
+
+- If no affiliation is available, write `Affiliation: not found`.
+- If Semantic Scholar is skipped or fails, write `Semantic Scholar: not checked`.
+- If GitHub is not directly linked or strongly corroborated, write `GitHub: not resolved`.
 - If a paper has a project link in arXiv comments, label it as `project link from arXiv comment`, not `official code` unless code is verified.
+
+## Output Brief Shape
+
+```markdown
+# Founder-Sourcing Brief: <Paper Title>
+
+## Verdict
+- Recommendation: reach out / watch / skip / manual diligence needed
+- Confidence: high / medium / low
+- One-line reason:
+
+## Paper
+- arXiv:
+- Authors:
+- Published:
+- Categories:
+- Core idea:
+
+## Why This Could Matter Commercially
+- Technical wedge:
+- Buyer/workflow hypothesis:
+- Why now:
+
+## Authors To Watch
+### <Name>
+- Identity confidence:
+- Affiliation:
+- Profiles:
+- Founder-relevant evidence:
+- Suggested outreach angle:
+
+## Unknowns / Do Not Overclaim
+
+## Evidence Ledger
+```

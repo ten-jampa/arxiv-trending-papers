@@ -2,59 +2,49 @@
 
 ## Decision
 
-Use a small Python CLI plus SQLite for v1.
+Use a small Python CLI with file-based artifacts for v0.
 
 ## Chosen Stack
 
 - Language: Python 3.11+
-- CLI: standard library `argparse` first; consider Typer only if the CLI grows.
-- HTTP: `httpx` or standard library initially; avoid heavy frameworks.
-- Parsing: arXiv Atom via `feedparser` or XML stdlib.
-- Storage: SQLite.
-- Config: YAML watchlist file.
+- CLI: standard library `argparse` first; consider Typer only if the command surface grows.
+- HTTP: standard library `urllib` or `httpx` if dependency management is added.
+- Parsing: arXiv Atom XML with Python stdlib or a tiny parser dependency.
+- Storage: JSON artifacts in `artifacts/<run_id>/` for v0.
 - Tests: pytest.
-- Delivery: Markdown output consumed manually or by Hermes cron.
-- CI: GitHub Actions later, after the first code slice exists.
+- Delivery: Markdown file/stdout.
+- CI: GitHub Actions later, after code exists.
 
-## Alternatives Considered
+## Why Not SQLite Yet
 
-### Full Web App
+SQLite is useful for repeated/batch runs, dedupe, and researcher history. v0 is one-paper analysis. File artifacts are simpler and make debugging easier.
 
-Rejected for now. A UI is not the bottleneck. The bottleneck is signal quality and ranking.
+Add SQLite only when batch discovery exists.
 
-### Hosted Backend + Database
+## Alternatives Rejected For v0
 
-Rejected for now. Production deployment adds operational drag before the brief is proven useful.
+### Full Daily Digest Pipeline
 
-### Notebook Prototype
+Rejected. It avoids the hard question: whether one paper can produce a trustworthy founder-sourcing brief.
 
-Useful for exploration but not ideal as the durable interface. A CLI is easier to automate with cron.
+### Web App / Dashboard
 
-### TypeScript App
+Rejected. A UI would add surface area before the brief quality is proven.
 
-Reasonable if this becomes a web product, but Python is better for fast research-data plumbing and local automation.
+### People Search Product
 
-## Why This Fits
+Rejected. Author identity resolution is valuable but dangerous; v0 should only resolve profiles when evidence is strong.
 
-- Cron-friendly.
-- Works locally without secrets.
-- Easy to test.
-- Easy to hand to future coding agents.
-- Easy to pipe into Telegram or Obsidian workflows later.
+### Heavy LLM Summarization First
 
-## Known Risks
-
-- Hugging Face Papers access may require scraping or unstable endpoints.
-- X/Twitter signal may be too brittle to include early.
-- Semantic Scholar rate limits may require caching.
-- Keyword filters can miss important papers with unusual phrasing.
-- arXiv category coverage may include lots of irrelevant noise.
+Rejected. The system should first prove its evidence contract. LLM-written briefs can come after artifacts are reliable.
 
 ## Migration Path
 
-If the system becomes valuable enough to host:
+If v0 works:
 
-1. Keep the collector/scoring modules.
-2. Swap SQLite for Postgres.
-3. Add a small FastAPI service around the same pipeline.
-4. Add a frontend only after the daily/weekly brief proves useful.
+1. Add `discover` sources for HF/DAIR/arXiv candidate lists.
+2. Add SQLite for repeated runs and identity cache.
+3. Add GitHub/Semantic Scholar enrichment.
+4. Add scheduled briefs.
+5. Add lab-founder historical graph as a separate artifact-gated stage.

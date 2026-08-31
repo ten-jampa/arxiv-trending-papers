@@ -9,6 +9,7 @@ venv/
 # Local state
 *.sqlite
 *.sqlite3
+/artifacts/
 /data/
 /output/
 

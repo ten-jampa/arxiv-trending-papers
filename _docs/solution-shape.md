@@ -2,224 +2,111 @@
 
 ## Current Stage
 
-Stage 1: specification and architecture shaping.
+Stage 1: specification and artifact contracts.
 
-We are intentionally not building the full end-to-end system yet. The immediate goal is to constrain the problem, pick the first useful surface area, and define the artifacts future implementation agents should follow.
+Per the agentic-shipping workflow, this repo should not proceed to implementation until the vertical-slice artifacts are explicit enough to constrain the next coding task.
 
-## System Boundary
+## Product Boundary
 
-The system is a research-intelligence pipeline, not a general paper database.
+This is a founder-sourcing radar built from research-paper evidence.
 
-It should answer:
+It should answer one narrow question first:
 
-- What new AI/RL/agent papers appeared recently?
-- Which ones are getting external attention?
-- Which ones match Tenzin's interests even if they are not loud yet?
-- What should Tenzin read, skim, save, or ignore?
+> Given this AI paper, which authors are worth founder-sourcing attention, and what evidence supports that?
 
-It should not try to answer everything about the literature.
+It should not start as a daily digest, dashboard, lab genealogy, or generic paper recommender.
 
-## v1 Architecture
+## v0 Architecture
 
 ```text
-Sources
-  -> collectors
-  -> normalizer
-  -> local store
-  -> enrichment workers
-  -> scorer
-  -> brief generator
-  -> delivery surface
+arXiv ID / URL
+  -> paper fetcher
+  -> CandidatePaper artifact
+  -> author resolver
+  -> ResolvedAuthor artifact
+  -> founder-signal extractor
+  -> FounderSignal artifact
+  -> Markdown founder brief
 ```
 
-### Sources
+Each stage writes an inspectable artifact before the next stage runs.
 
-v1 starts with arXiv because it is stable, public, and canonical for fresh AI papers.
+## Stage Responsibilities
 
-Likely first sources:
+### Paper Fetcher
 
-- arXiv API for canonical paper discovery and metadata.
-- DAIR.AI AI Papers of the Week raw Markdown for curated weekly signal.
-- Hugging Face Papers Trending for practitioner/curation signal, behind a parser that must pass smoke tests.
+- Fetch one arXiv record.
+- Normalize metadata.
+- Extract links from arXiv metadata/comment/abstract.
+- Write `candidate_paper.json`.
 
-Likely enrichment sources after v1:
+### Author Resolver
 
-- Semantic Scholar API for citation/reference metadata.
-- GitHub API/search for code/repo signal.
+- Preserve raw author names.
+- Attempt Semantic Scholar author lookup if available.
+- Use direct links from source metadata/project pages when available.
+- Mark unresolved authors honestly.
+- Write `resolved_authors.json`.
 
-Later sources:
+### Founder-Signal Extractor
 
-- OpenReview for conference cycles.
-- Papers with Code for benchmark/code mapping.
-- Lab blogs/RSS for major release context.
-- X/Twitter only as links found in curated sources until a reliable access path exists.
-
-### Collectors
-
-Collectors fetch raw source data and write normalized records.
-
-They should be boring and source-specific:
-
-- `collect_arxiv_recent`
-- `collect_semantic_scholar_metadata`
-- `collect_github_signal`
-- `collect_hf_papers_signal`
-
-Collectors should not decide final ranking.
-
-### Normalizer
-
-The normalizer converts each source into internal objects:
-
-- paper IDs
-- title
-- abstract
-- authors
-- categories
-- dates
-- URLs
-- source metadata
-
-arXiv ID should be the canonical key for v1.
-
-### Local Store
-
-Use SQLite for v1.
-
-Reasons:
-
-- Easy cron-friendly local persistence.
-- Good enough for seen-paper dedupe.
-- No service dependency.
-- Easy migration to Postgres if this becomes multi-user or hosted.
-
-### Enrichment
-
-Enrichment workers attach evidence, not vibes.
-
-Examples:
-
-- GitHub repo exists and has stars.
-- Semantic Scholar citation count or influential citation count.
-- HF Papers likes/upvotes if obtainable.
-- Recognized lab or author signal.
-- Matched watchlist terms.
-
-Each enrichment should include source and timestamp.
-
-### Scoring
-
-Scoring should be transparent.
-
-Use separate dimensions:
-
-- topical relevance
-- external trend
-- implementation signal
-- source/lab quality
-- novelty/age adjustment
-- hype penalty
-
-The generated brief should expose the top reasons for a score.
+- Identify evidence-backed builder/commercialization signals.
+- Separate paper-level and author-level signals.
+- Do not infer founder intent from prestige alone.
+- Write `founder_signals.json`.
 
 ### Brief Generator
 
-The generator turns scored papers into Markdown.
-
-Default sections:
-
-- Top papers to read
-- Worth skimming
-- Quiet but potentially important
-- Probably overhyped
-- Watchlist misses or anomalies
-
-Each item should include:
-
-- title and link
-- authors/lab if available
-- one-sentence core idea
-- why it is trending or why it matters
-- read/skim/save/ignore recommendation
-
-### Delivery Surface
-
-v1 delivery should be simple:
-
-- CLI command writes Markdown to stdout or file.
-- Hermes cron can later call the CLI and deliver the brief to Telegram.
-
-Do not build a web UI until the scoring and brief are useful.
-
-## Suggested Milestones
-
-### Milestone 1: Useful Local Brief
-
-Build a CLI that:
-
-1. Fetches recent arXiv papers from configured categories.
-2. Filters by RL/agents watchlists.
-3. Stores seen IDs in SQLite.
-4. Produces a Markdown brief.
-
-No external trend enrichment required yet beyond arXiv metadata and keyword scoring.
-
-### Milestone 2: Real Trend Signals
-
-Add enrichment:
-
-1. Semantic Scholar metadata.
-2. GitHub repo/code search signal.
-3. Hugging Face Papers signal if stable.
-
-### Milestone 3: Personalization
-
-Add:
-
-1. Topic weights.
-2. Saved/ignored paper feedback.
-3. Weekly rollup.
-4. Obsidian export for selected papers.
-
-### Milestone 4: Automation
-
-Add:
-
-1. Hermes cron job.
-2. Telegram delivery.
-3. Failure reporting.
-4. Last-run state and dedupe.
-
-## Design Biases
-
-- Prefer stable public APIs over brittle scraping.
-- Prefer a useful top 5 over an exhaustive dump.
-- Prefer explainable scoring over fancy ranking.
-- Prefer local files and SQLite until the workflow proves useful.
-- Keep source collection, scoring, and summarization separate.
-- Treat “trending” as evidence-weighted attention, not truth.
+- Produce a concise sourcing brief.
+- Include recommendation and confidence.
+- Include outreach angle only when justified.
+- Include unknowns/do-not-overclaim section.
+- Write `founder_brief.md`.
 
 ## First Implementation Slice
 
-The first coding slice should be deliberately small:
+Build exactly this:
+
+```bash
+founder-radar founder-brief <arxiv-id-or-url>
+```
+
+Acceptance criteria live in `_docs/vertical-slice-v0.md`.
+
+Suggested code skeleton:
 
 ```text
-config/watchlists.yaml
-src/arxiv_trending/
+src/founder_radar/
+  __init__.py
   arxiv.py
   models.py
-  scoring.py
+  links.py
+  semantic_scholar.py
+  author_resolution.py
+  founder_signals.py
   brief.py
   cli.py
 tests/
-  test_scoring.py
-  test_brief.py
+  test_arxiv_id_parsing.py
+  test_arxiv_normalization.py
+  test_author_resolution.py
+  test_brief_rendering.py
 ```
 
-Acceptance criteria:
+## Later Expansion Gates
 
-- Can run one CLI command with mocked or recorded arXiv data.
-- Produces deterministic Markdown.
-- Clearly shows why each paper matched.
-- Does not require credentials.
-- Does not attempt full automation/deployment.
+Only after v0 is useful:
+
+1. Add paper discovery from Hugging Face Trending and DAIR.AI.
+2. Add batch processing.
+3. Add persistent researcher profiles.
+4. Add lab watchlists and historical founder graph.
+5. Add cron/Telegram delivery.
+
+## Design Biases
+
+- Sparse and true beats rich and fake.
+- Identity resolution is the hard part; treat it as the primary risk.
+- Evidence artifacts matter more than scoring formulas.
+- Source adapters should not contain founder judgment.
+- Brief generation can use judgment, but facts must come from artifacts.

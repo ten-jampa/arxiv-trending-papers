@@ -1,33 +1,46 @@
 # Manual Test Scenario
 
-This is a future test seed, not a claim that the full system exists yet.
+## Scenario: Generate A Founder-Sourcing Brief For One Paper
 
-## Scenario: Generate A Useful RL/Agents Paper Brief
+This is the seed for the first manual and automated test. It does not assume batch ingestion exists.
 
 ### Preconditions
 
-- A config file defines arXiv categories and watchlist keywords.
-- The local store is empty or reset.
-- The collector can fetch or load recent arXiv-like paper records.
+- The CLI can accept one arXiv ID or URL.
+- Public arXiv API is reachable.
+- Artifact output directory is empty or disposable.
 
 ### Steps
 
-1. Run the CLI for the last 7 days of papers.
-2. Confirm papers from `cs.LG`, `cs.AI`, `cs.CL`, `cs.MA`, and `cs.SE` are considered.
-3. Confirm RL and agents keywords cause matching papers to appear in the candidate set.
-4. Generate the Markdown brief.
-5. Inspect the top-ranked items.
-6. Run the same command again with the same state.
+1. Run:
+
+```bash
+founder-radar founder-brief 2608.28447 --output artifacts/manual-test/founder_brief.md
+```
+
+2. Inspect generated artifacts:
+
+```text
+artifacts/manual-test/candidate_paper.json
+artifacts/manual-test/resolved_authors.json
+artifacts/manual-test/founder_signals.json
+artifacts/manual-test/founder_brief.md
+```
+
+3. Confirm the paper metadata matches arXiv.
+4. Confirm all raw authors appear in `resolved_authors.json`.
+5. Confirm unresolved authors are marked `unresolved`, not guessed.
+6. Confirm every founder-relevant claim has an evidence URL.
+7. Confirm the brief includes unknowns/do-not-overclaim.
 
 ### Expected Results
 
-- The brief includes ranked paper items with links and recommendations.
-- Each ranked item shows why it matched.
-- RL/agents matches are visible and not buried under generic ML papers.
-- Duplicate already-seen papers are either omitted or clearly marked, depending on the selected mode.
-- No credentials are required for the basic arXiv-only path.
+- The command succeeds without credentials.
+- The final brief is readable Markdown.
+- The brief contains a recommendation: `reach out`, `watch`, `skip`, or `manual diligence needed`.
+- Any project/code/profile links are labelled with source and confidence.
+- Missing GitHub/X/LinkedIn/affiliation data is explicit.
 
 ### Cleanup
 
-- Delete or reset the local SQLite database.
-- Remove generated brief files if they are test artifacts.
+Delete the local artifact directory if it was only a test run.

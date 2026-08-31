@@ -1,198 +1,168 @@
-# arXiv Trending Papers — Product Spec
+# Founder-Sourcing Paper Radar — Product Spec
 
 ## Purpose
 
-Track newly interesting AI research papers, especially reinforcement learning and agents, as an alternative signal for investment sourcing and thesis formation.
+Identify AI researchers who may become founders early enough to reach them before the market notices.
 
-The output is a ranked research-intelligence brief that separates genuine signal from hype and clearly labels what was actually verified.
+The system uses research-paper signals as an alternative sourcing layer for VC/investment work. It is not a generic paper digest and not a literature-review bot.
 
 ## Target User
 
-Tenzin: AI capability/research/VC-oriented reader who wants a daily or weekly shortlist of papers worth reading, skimming, saving, watching, or ignoring for sourcing and investment insight.
+Tenzin: AI/VC-oriented operator who wants a short, evidence-backed list of researchers worth contacting, watching, or mapping into a thesis.
 
 ## Primary Job To Be Done
 
-When new AI papers appear across arXiv and adjacent curated channels, identify which ones signal emerging technical wedges, startup formation themes, infrastructure bottlenecks, benchmark ecosystems, or open-source momentum; explain why; and recommend what to do with them.
+Given one high-signal AI paper, resolve its authors as real public people where possible, extract founder-relevant evidence, and produce a concise founder-sourcing brief.
+
+## Vertical Slice v0
+
+Input:
+
+```text
+one arXiv ID or arXiv URL
+```
+
+Output:
+
+```text
+one Markdown founder-sourcing brief
+```
+
+Pipeline:
+
+```text
+arXiv paper fetch
+  -> candidate paper artifact
+  -> author identity resolution artifact
+  -> founder-signal extraction artifact
+  -> founder brief artifact
+```
+
+The first implementation should support one paper only. Batch discovery and monitoring come later.
 
 ## Core Workflow
 
-1. Collect recent papers from selected arXiv categories.
-2. Filter papers by topic watchlists: RL, agents, AI capability, evaluation, interpretability, inference, and AI infra.
-3. Enrich candidate papers with trend signals where available.
-4. Score papers using a transparent relevance/trend formula.
-5. Generate a terse Markdown brief with the top papers and rationale.
-6. Persist seen paper IDs so future briefs avoid duplicate spam.
-7. Optionally save selected papers into Obsidian later.
+1. Fetch one paper from arXiv.
+2. Normalize paper metadata into `candidate_paper.json`.
+3. Enumerate author strings from the paper.
+4. Resolve public author profiles only when evidence supports the match.
+5. Extract founder-relevant signals from verified paper metadata and resolved profiles.
+6. Generate a Markdown founder-sourcing brief.
+7. Mark unknowns explicitly instead of filling gaps with plausible nonsense.
 
 ## Core Objects
 
-### Paper
+### CandidatePaper
 
-- `paper_id`: canonical ID, usually arXiv ID.
-- `source`: `arxiv`, later possibly `openreview`, `semantic_scholar`, `huggingface`, etc.
+- `paper_id`: canonical internal ID, e.g. `arxiv:2608.28447v1`.
+- `arxiv_id`
 - `title`
 - `abstract`
-- `authors`
+- `authors`: raw author strings from arXiv.
 - `categories`
 - `published_at`
 - `updated_at`
 - `url`
 - `pdf_url`
-- `primary_category`
 - `comment`
-- `links`: code, project page, dataset, benchmark, if found.
+- `links`: paper/project/code/social links only if extracted from a verified source.
+- `source_hits`: where this paper was discovered or validated.
+- `candidate_reason`: why this paper is worth founder-radar analysis.
 
-### Watchlist
+### ResolvedAuthor
 
-- `name`: e.g. `rl`, `agents`, `capability`, `interpretability`.
-- `categories`: arXiv category allowlist.
-- `keywords`: positive match terms.
-- `negative_keywords`: terms to downrank or exclude.
-- `weight`: scoring weight.
+- `name`: normalized author name.
+- `paper_author_string`: original string from the paper.
+- `affiliation`: only if sourced.
+- `profiles`: Semantic Scholar, homepage, lab page, GitHub, Google Scholar, DBLP, X, LinkedIn when verified.
+- `identity_confidence`: `high`, `medium`, `low`, or `unresolved`.
+- `evidence`: source URL plus claim.
+- `ambiguities`: possible mistaken identities or unresolved conflicts.
 
-### Trend Signal
+### FounderSignal
 
-- `paper_id`
-- `signal_type`: `hf_likes`, `github_stars`, `citation_velocity`, `x_mentions`, `lab_bonus`, `keyword_relevance`, etc.
+- `author_name`
+- `signal_type`
 - `value`
-- `observed_at`
-- `source_url`
-- `confidence`: `high`, `medium`, `low`.
+- `confidence`
+- `evidence_url`
+- `evidence_note`
 
-### Brief Item
+Allowed initial signal types:
 
-- `paper_id`
-- `rank`
-- `trend_score`
-- `relevance_score`
-- `recommendation`: `read`, `skim`, `save`, `ignore`.
-- `why_trending`
-- `core_idea`
-- `why_it_matters`
-- `caveats`
+- `commercially_legible_problem`
+- `project_page_present`
+- `code_repo_present`
+- `benchmark_or_dataset_created`
+- `infra_or_tooling_orientation`
+- `agent_or_rl_systems_focus`
+- `repeat_theme`, only if prior papers are actually fetched.
+- `industry_or_startup_collaboration`, only if affiliation/source proves it.
 
-## Initial arXiv Categories
+### FounderBrief
 
-Primary:
+- paper summary
+- authors to watch
+- founder-relevance hypotheses
+- commercialization angles
+- suggested outreach actions
+- evidence ledger
+- gaps and unknowns
 
-- `cs.LG` — machine learning, RL, post-training, optimization.
-- `cs.AI` — planning, reasoning, agents, symbolic/neural AI.
-- `cs.CL` — LLM agents, tool use, language-model post-training.
-- `cs.MA` — multi-agent systems and multi-agent RL.
-- `cs.SE` — coding agents, SWE-bench, software engineering agents.
+## Source Policy
 
-Secondary:
+Allowed in v0:
 
-- `cs.RO` — embodied agents and robot RL.
-- `stat.ML` — theoretical RL, bandits, statistical ML.
-- `cs.HC` — human-agent interaction.
-- `cs.CR` — security/cyber agents and adversarial agent behavior.
-- `cs.CY` — agent governance and socio-technical risk.
+- arXiv API.
+- Semantic Scholar public API, if available.
+- URLs present in arXiv metadata, comments, or abstract.
+- Public GitHub pages/repos only when linked directly or strongly matched with evidence.
 
-## Initial Topic Watchlists
+Optional but not required in v0:
 
-### Reinforcement Learning
+- Hugging Face Papers Trending as a candidate-paper source after parser smoke tests pass.
+- DAIR.AI AI Papers of the Week as a candidate-paper source after parser smoke tests pass.
 
-Keywords:
+Out of scope for v0:
 
-- reinforcement learning
-- RLHF
-- RLAIF
-- GRPO
-- PPO
-- DPO
-- online RL
-- offline RL
-- policy optimization
-- reward model
-- preference optimization
-- verifiable reward
-- actor-critic
-- bandit
-- MDP
-- Q-learning
-- Monte Carlo tree search
-- MCTS
-- test-time reinforcement
+- Broad LinkedIn scraping.
+- Company-registration scraping.
+- X/Twitter monitoring beyond links already present in source metadata.
+- Lab-founder historical graph.
+- Daily cron/Telegram automation.
+- Full text PDF analysis.
+- Web UI.
 
-### Agents
+## Happy Path
 
-Keywords:
+1. User runs `founder-radar founder-brief 2608.28447`.
+2. The CLI fetches the arXiv record.
+3. The CLI writes normalized intermediate artifacts.
+4. The CLI resolves whatever author profiles can be resolved with evidence.
+5. The CLI emits a Markdown brief with high-confidence claims and explicit unknowns.
 
-- agent
-- agents
-- LLM agent
-- multi-agent
-- tool use
-- function calling
-- planning
-- reasoning
-- autonomous
-- workflow
-- environment
-- web agent
-- browser agent
-- computer use
-- coding agent
-- software engineering agent
-- SWE-bench
-- embodied agent
-- robot agent
-- memory
-- reflection
-- self-improvement
+## Success State
 
-## Scoring Principles
+A useful v0 brief lets a VC operator decide:
 
-Trend is not the same as importance. The system should show both:
+- whether any author is worth reaching out to now,
+- what specific commercial wedge to ask about,
+- what evidence supports the hypothesis,
+- what is still unknown and requires manual diligence.
 
-- `trend_score`: how much the paper is being noticed now.
-- `relevance_score`: how aligned it is with Tenzin's interests.
-- `importance_note`: why it might matter even if not noisy yet.
+## Non-Goals
 
-Initial score shape:
-
-```text
-combined_score =
-  age_adjusted_trend_score
-+ personal_relevance_score
-+ source_quality_bonus
-+ implementation_signal_bonus
-- hype_penalty
-```
-
-The score must be explainable in the brief. No black-box ranking without reasons.
-
-## Permissions And Auth
-
-- Public sources first: arXiv API/RSS, Semantic Scholar public API, GitHub public API/search, Hugging Face Papers pages/RSS/API if available.
-- No paid APIs required for v1.
-- No posting, bookmarking, or Obsidian writes unless explicitly enabled later.
-- No secrets committed.
-
-## Important Edge Cases
-
-- arXiv revisions should not be treated as brand-new papers unless the update is meaningful.
-- Generic “agent” papers outside AI agents should be filtered or downranked.
-- Survey papers can be useful but should not dominate daily trend lists.
-- Lab prestige should be a weak signal, not a trump card.
-- Very new papers may have no citations/stars yet; avoid burying them solely because metrics lag.
-- X/Twitter signal is noisy and brittle; it should be optional, not foundational.
-
-## Non-Goals For Current Stage
-
-- Full production deployment.
-- Browser automation for every source.
-- Paid data providers.
-- Perfect trend detection.
-- Full-text PDF summarization.
-- Automatic Obsidian publishing.
-- E2E UI/app build.
+- Ranking all AI papers.
+- A daily digest.
+- A generic research assistant.
+- A full people-search product.
+- A lab genealogy system.
+- Automated outreach.
+- Unverified founder scoring.
 
 ## Open Questions
 
-1. Should the first deliverable be a Telegram cron brief, a CLI-generated Markdown report, or both?
-2. Daily, weekly, or both?
-3. Should the system optimize for “top 5 must-read” or broader “top 15 radar” coverage?
-4. Should X/Twitter be included if access is flaky, or skipped until there is a stable source?
-5. Should saved papers create Obsidian notes immediately or only after explicit selection?
+1. Should the CLI package keep the repo name `arxiv-trending-papers` or expose the command as `founder-radar`?
+2. Should v0 require Semantic Scholar, or gracefully run arXiv-only?
+3. Should LLM summarization be included in v0, or should v0 generate a template brief with extracted evidence only?
+4. What confidence threshold is required before surfacing GitHub/X/LinkedIn profiles?
