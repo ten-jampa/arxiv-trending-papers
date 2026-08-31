@@ -38,17 +38,21 @@ v1 starts with arXiv because it is stable, public, and canonical for fresh AI pa
 
 Likely first sources:
 
-- arXiv API or RSS for paper discovery.
+- arXiv API for canonical paper discovery and metadata.
+- DAIR.AI AI Papers of the Week raw Markdown for curated weekly signal.
+- Hugging Face Papers Trending for practitioner/curation signal, behind a parser that must pass smoke tests.
+
+Likely enrichment sources after v1:
+
 - Semantic Scholar API for citation/reference metadata.
 - GitHub API/search for code/repo signal.
-- Hugging Face Papers for practitioner trend signal, if access is stable enough.
 
 Later sources:
 
 - OpenReview for conference cycles.
 - Papers with Code for benchmark/code mapping.
 - Lab blogs/RSS for major release context.
-- X/Twitter only if a reliable access path exists.
+- X/Twitter only as links found in curated sources until a reliable access path exists.
 
 ### Collectors
 

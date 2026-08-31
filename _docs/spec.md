@@ -2,15 +2,17 @@
 
 ## Purpose
 
-Track newly interesting AI research papers, especially reinforcement learning and agents, and produce a ranked reading brief that separates genuine signal from hype.
+Track newly interesting AI research papers, especially reinforcement learning and agents, as an alternative signal for investment sourcing and thesis formation.
+
+The output is a ranked research-intelligence brief that separates genuine signal from hype and clearly labels what was actually verified.
 
 ## Target User
 
-Tenzin: AI capability/research/VC-oriented reader who wants a daily or weekly shortlist of papers worth reading, skimming, saving, or ignoring.
+Tenzin: AI capability/research/VC-oriented reader who wants a daily or weekly shortlist of papers worth reading, skimming, saving, watching, or ignoring for sourcing and investment insight.
 
 ## Primary Job To Be Done
 
-When new AI papers appear across arXiv and adjacent research channels, identify which ones are trending or quietly important, explain why, and recommend what to do with them.
+When new AI papers appear across arXiv and adjacent curated channels, identify which ones signal emerging technical wedges, startup formation themes, infrastructure bottlenecks, benchmark ecosystems, or open-source momentum; explain why; and recommend what to do with them.
 
 ## Core Workflow
 
