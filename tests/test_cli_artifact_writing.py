@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from founder_radar import cli
-from founder_radar.models import CandidatePaper, EvidenceLink, PaperTextEvidence, SourceHit
+from founder_radar.models import CandidatePaper, EvidenceClaim, EvidenceLink, PaperTextEvidence, ResolvedAuthor, SourceHit
 
 
 def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path, monkeypatch) -> None:
@@ -44,8 +44,22 @@ def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path,
         errors=[],
     )
 
+    resolved_authors = [
+        ResolvedAuthor(
+            author_key="author-1",
+            name="Alice Smith",
+            paper_author_string="Alice Smith",
+            affiliation=None,
+            profiles={"semantic_scholar": None, "homepage": None, "lab_page": None, "github": None, "google_scholar": None, "dblp": None, "x": None, "linkedin": None},
+            identity_confidence="unresolved",
+            evidence=[EvidenceClaim(claim="Raw author preserved from arXiv metadata", source_url="https://arxiv.org/abs/2608.28447v1", observed_at="2026-09-01T00:00:00+00:00", confidence="high", notes=None)],
+            ambiguities=[],
+        ).to_dict()
+    ]
+
     monkeypatch.setattr(cli, "fetch_candidate_paper", lambda _: candidate)
     monkeypatch.setattr(cli, "extract_paper_text_evidence", lambda _candidate: paper_text_evidence)
+    monkeypatch.setattr(cli, "resolve_authors", lambda _candidate, _paper_text: resolved_authors)
     artifacts_dir = tmp_path / "artifacts"
     output_path = tmp_path / "founder_brief.md"
 
@@ -55,10 +69,14 @@ def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path,
     candidate_path = artifacts_dir / "candidate_paper.json"
     assert candidate_path.exists()
     paper_text_path = artifacts_dir / "paper_text_evidence.json"
+    resolved_authors_path = artifacts_dir / "resolved_authors.json"
     assert output_path.exists()
     assert paper_text_path.exists()
+    assert resolved_authors_path.exists()
     data = json.loads(candidate_path.read_text())
     paper_text_data = json.loads(paper_text_path.read_text())
+    resolved_authors_data = json.loads(resolved_authors_path.read_text())
     assert data["title"] == "Example Paper"
     assert paper_text_data["emails"] == ["alice@example.edu"]
+    assert resolved_authors_data[0]["identity_confidence"] == "unresolved"
     assert "Only arXiv metadata fetch" in output_path.read_text()

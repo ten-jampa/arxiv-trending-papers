@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from founder_radar.arxiv import ArxivNotFoundError, fetch_candidate_paper, parse_arxiv_id
+from founder_radar.author_resolution import resolve_authors
 from founder_radar.brief import render_stub_brief
 from founder_radar.paper_text import extract_paper_text_evidence
 
@@ -50,6 +51,10 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
     paper_text_path = artifacts_dir / "paper_text_evidence.json"
     paper_text_path.write_text(json.dumps(paper_text_evidence.to_dict(), indent=2) + "\n")
 
+    resolved_authors = resolve_authors(candidate, paper_text_evidence)
+    resolved_authors_path = artifacts_dir / "resolved_authors.json"
+    resolved_authors_path.write_text(json.dumps(resolved_authors, indent=2) + "\n")
+
     brief_text = render_stub_brief(candidate)
     output_path = args.output or artifacts_dir / "founder_brief.md"
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,6 +62,7 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
 
     print(f"Wrote {candidate_path}")
     print(f"Wrote {paper_text_path}")
+    print(f"Wrote {resolved_authors_path}")
     print(f"Wrote {output_path}")
     return 0
 

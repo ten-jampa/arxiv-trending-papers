@@ -23,6 +23,15 @@ class SourceHit:
 
 
 @dataclass(slots=True)
+class EvidenceClaim:
+    claim: str
+    source_url: str
+    observed_at: str
+    confidence: str
+    notes: str | None = None
+
+
+@dataclass(slots=True)
 class CandidatePaper:
     paper_id: str
     arxiv_id: str
@@ -63,6 +72,21 @@ class PaperTextEvidence:
     github_urls: list[EvidenceLink]
     observed_at: str
     errors: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
+class ResolvedAuthor:
+    author_key: str
+    name: str
+    paper_author_string: str
+    affiliation: str | None
+    profiles: dict[str, str | None]
+    identity_confidence: str
+    evidence: list[EvidenceClaim]
+    ambiguities: list[str]
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
