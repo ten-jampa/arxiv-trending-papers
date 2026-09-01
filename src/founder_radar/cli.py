@@ -7,7 +7,7 @@ from pathlib import Path
 
 from founder_radar.arxiv import ArxivNotFoundError, fetch_candidate_paper, parse_arxiv_id
 from founder_radar.author_resolution import resolve_authors
-from founder_radar.brief import render_stub_brief
+from founder_radar.brief import render_founder_brief
 from founder_radar.founder_signals import extract_founder_signals
 from founder_radar.paper_text import extract_paper_text_evidence
 
@@ -60,7 +60,7 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
     founder_signals_path = artifacts_dir / "founder_signals.json"
     founder_signals_path.write_text(json.dumps(founder_signals, indent=2) + "\n")
 
-    brief_text = render_stub_brief(candidate)
+    brief_text = render_founder_brief(candidate, resolved_authors, founder_signals)
     output_path = args.output or artifacts_dir / "founder_brief.md"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(brief_text)

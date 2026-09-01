@@ -88,4 +88,6 @@ def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path,
     assert paper_text_data["emails"] == ["alice@example.edu"]
     assert resolved_authors_data[0]["identity_confidence"] == "unresolved"
     assert founder_signals_data[0]["signal_type"] == "project_page_present"
-    assert "Only arXiv metadata fetch" in output_path.read_text()
+    brief_text = output_path.read_text()
+    assert "## Verdict" in brief_text
+    assert "## Evidence Ledger" in brief_text

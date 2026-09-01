@@ -27,9 +27,6 @@ def extract_founder_signals(candidate: CandidatePaper, paper_text: PaperTextEvid
             signals.append(_signal("project_page_present", candidate.paper_id, True, link.confidence, link.url, f"Project link from {link.source}"))
         if link.label == "code":
             signals.append(_signal("code_repo_present", candidate.paper_id, True, link.confidence, link.url, f"Code link from {link.source}"))
-    for link in paper_text.urls:
-        if link.label == "project" and "arxiv.org/abs/" not in link.url and "arxiv.org/pdf/" not in link.url:
-            signals.append(_signal("project_page_present", candidate.paper_id, True, link.confidence, link.url, "Project link from PDF text"))
     for link in paper_text.github_urls:
         signals.append(_signal("code_repo_present", candidate.paper_id, True, link.confidence, link.url, "GitHub URL from PDF text"))
 
