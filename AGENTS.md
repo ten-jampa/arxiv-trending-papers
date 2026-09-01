@@ -23,6 +23,20 @@ Before code changes, read these in order:
 5. `_docs/data-contract.md`
 6. `_docs/source-smoketests.md`
 
+## Agent skills
+
+### Issue tracker
+
+Issues and specs are tracked in GitHub Issues for `ten-jampa/arxiv-trending-papers`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the default Matt Pocock triage labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context repo: use root `CONTEXT.md` and root `docs/adr/` when they exist. See `docs/agents/domain.md`.
+
 ## Change Discipline
 
 - Keep changes small and artifact-gated.
