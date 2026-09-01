@@ -90,3 +90,17 @@ class ResolvedAuthor:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(slots=True)
+class FounderSignal:
+    author_key: str | None
+    paper_id: str
+    signal_type: str
+    value: str | int | float | bool
+    confidence: str
+    evidence_url: str
+    evidence_note: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)

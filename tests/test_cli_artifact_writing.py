@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from founder_radar import cli
-from founder_radar.models import CandidatePaper, EvidenceClaim, EvidenceLink, PaperTextEvidence, ResolvedAuthor, SourceHit
+from founder_radar.models import CandidatePaper, EvidenceClaim, EvidenceLink, FounderSignal, PaperTextEvidence, ResolvedAuthor, SourceHit
 
 
 def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path, monkeypatch) -> None:
@@ -57,9 +57,14 @@ def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path,
         ).to_dict()
     ]
 
+    founder_signals = [
+        FounderSignal(author_key=None, paper_id="arxiv:2608.28447v1", signal_type="project_page_present", value=True, confidence="medium", evidence_url="https://example.com/project", evidence_note="Project link from PDF text").to_dict()
+    ]
+
     monkeypatch.setattr(cli, "fetch_candidate_paper", lambda _: candidate)
     monkeypatch.setattr(cli, "extract_paper_text_evidence", lambda _candidate: paper_text_evidence)
     monkeypatch.setattr(cli, "resolve_authors", lambda _candidate, _paper_text: resolved_authors)
+    monkeypatch.setattr(cli, "extract_founder_signals", lambda _candidate, _paper_text: founder_signals)
     artifacts_dir = tmp_path / "artifacts"
     output_path = tmp_path / "founder_brief.md"
 
@@ -70,13 +75,17 @@ def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path,
     assert candidate_path.exists()
     paper_text_path = artifacts_dir / "paper_text_evidence.json"
     resolved_authors_path = artifacts_dir / "resolved_authors.json"
+    founder_signals_path = artifacts_dir / "founder_signals.json"
     assert output_path.exists()
     assert paper_text_path.exists()
     assert resolved_authors_path.exists()
+    assert founder_signals_path.exists()
     data = json.loads(candidate_path.read_text())
     paper_text_data = json.loads(paper_text_path.read_text())
     resolved_authors_data = json.loads(resolved_authors_path.read_text())
+    founder_signals_data = json.loads(founder_signals_path.read_text())
     assert data["title"] == "Example Paper"
     assert paper_text_data["emails"] == ["alice@example.edu"]
     assert resolved_authors_data[0]["identity_confidence"] == "unresolved"
+    assert founder_signals_data[0]["signal_type"] == "project_page_present"
     assert "Only arXiv metadata fetch" in output_path.read_text()
