@@ -10,7 +10,7 @@ def make_candidate() -> CandidatePaper:
         url="https://arxiv.org/abs/2608.28447v1",
         pdf_url="https://arxiv.org/pdf/2608.28447v1",
         title="Learning to Use Tools: Reinforcement Learning for Tool-Integrated Mathematical Reasoning",
-        abstract="We apply reinforcement learning to improve tool use for mathematical reasoning.",
+        abstract="We apply reinforcement learning to improve tool use and verification for mathematical reasoning.",
         authors=["Alice Smith"],
         published_at="2026-08-30T00:00:00Z",
         updated_at="2026-08-31T00:00:00Z",
@@ -150,3 +150,69 @@ def test_extract_founder_signals_adds_benchmark_or_dataset_signal_from_strong_me
     signal_types = [s["signal_type"] for s in signals]
 
     assert "benchmark_or_dataset_created" in signal_types
+
+
+def test_infra_or_tooling_signal_ignores_generic_ml_words_but_catches_specific_ops_language() -> None:
+    generic_candidate = CandidatePaper(
+        paper_id="arxiv:generic1",
+        arxiv_id="generic1",
+        source="arxiv",
+        url="https://arxiv.org/abs/generic1",
+        pdf_url="https://arxiv.org/pdf/generic1",
+        title="A Multi-Agent System For Language-Grounded Control",
+        abstract="We deploy a system that bridges model-based control and learned policies.",
+        authors=["Alice Smith"],
+        published_at="2026-08-31T00:00:00Z",
+        updated_at="2026-08-31T00:00:00Z",
+        primary_category="cs.RO",
+        categories=["cs.RO"],
+        comment=None,
+        journal_ref=None,
+        doi=None,
+        links=[EvidenceLink(url="https://arxiv.org/abs/generic1", label="paper", source="arxiv_link", confidence="high")],
+        source_hits=[SourceHit(source="arxiv", source_url="https://arxiv.org/abs/generic1", observed_at="2026-09-01T00:00:00+00:00", raw_location=None, confidence="high")],
+        candidate_reason=["user-supplied arXiv paper"],
+        fetched_at="2026-09-01T00:00:00+00:00",
+    )
+    specific_candidate = CandidatePaper(
+        paper_id="arxiv:specific1",
+        arxiv_id="specific1",
+        source="arxiv",
+        url="https://arxiv.org/abs/specific1",
+        pdf_url="https://arxiv.org/pdf/specific1",
+        title="Context-Aware Interleaved Batching for Real-Time Transcription",
+        abstract="Our on-premise verification pipeline improves throughput and reliability.",
+        authors=["Bob Jones"],
+        published_at="2026-08-31T00:00:00Z",
+        updated_at="2026-08-31T00:00:00Z",
+        primary_category="cs.CL",
+        categories=["cs.CL"],
+        comment=None,
+        journal_ref=None,
+        doi=None,
+        links=[EvidenceLink(url="https://arxiv.org/abs/specific1", label="paper", source="arxiv_link", confidence="high")],
+        source_hits=[SourceHit(source="arxiv", source_url="https://arxiv.org/abs/specific1", observed_at="2026-09-01T00:00:00+00:00", raw_location=None, confidence="high")],
+        candidate_reason=["user-supplied arXiv paper"],
+        fetched_at="2026-09-01T00:00:00+00:00",
+    )
+    paper_text = PaperTextEvidence(
+        paper_id="arxiv:x",
+        pdf_url="https://arxiv.org/pdf/x",
+        download_status="success",
+        text_extraction_status="success",
+        text_chars=100,
+        contact_block=None,
+        emails=[],
+        email_domains=[],
+        affiliation_lines=[],
+        urls=[],
+        github_urls=[],
+        observed_at="2026-09-01T00:00:00+00:00",
+        errors=[],
+    )
+
+    generic_signals = extract_founder_signals(generic_candidate, paper_text)
+    specific_signals = extract_founder_signals(specific_candidate, paper_text)
+
+    assert "infra_or_tooling_orientation" not in [s["signal_type"] for s in generic_signals]
+    assert "infra_or_tooling_orientation" in [s["signal_type"] for s in specific_signals]

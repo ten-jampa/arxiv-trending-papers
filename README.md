@@ -24,6 +24,7 @@ one arXiv paper -> PDF evidence -> resolved authors -> founder signals -> Markdo
 - `_docs/source-smoketests.md` — verified public-source behavior
 - `_docs/stack.md` — v0 stack decision
 - `_docs/manual-test.md` — first manual test scenario
+- `_docs/discovery-ranking.md` — later `discover -> rank -> founder-brief` shape and signal design bias
 - `AGENTS.md` — durable agent instructions
 
 ## v0 Command Target

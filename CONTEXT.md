@@ -100,3 +100,12 @@ Explicit absence markers.
 - `not checked`: the source or enrichment step was not run.
 
 These are preferred over plausible guesses.
+
+
+### Ranking Signal
+
+A boolean or categorical founder-radar input used to prioritize candidate papers later.
+
+Examples: `code_repo_present`, `project_page_present`, `identity_confidence`, `benchmark_or_dataset_created`.
+
+A ranking signal is not itself a verdict and should not pretend to be a calibrated score unless real review data later supports calibration.

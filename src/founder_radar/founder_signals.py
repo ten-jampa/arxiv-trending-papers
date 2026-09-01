@@ -3,7 +3,7 @@ from __future__ import annotations
 from founder_radar.models import CandidatePaper, FounderSignal, PaperTextEvidence
 
 RL_HINTS = ("reinforcement learning", "rlhf", "grpo", "dapo", "policy optimization", "tool use", "tool-integrated")
-TOOLING_HINTS = ("tool", "tools", "workflow", "system", "infrastructure", "verification", "batching", "deploy", "reliability")
+TOOLING_HINTS = ("infrastructure", "reliability", "batching", "latency", "on-premise", "real-time", "production-grade", "throughput", "verification")
 BENCHMARK_HINTS = ("benchmark", "benchmarks", "dataset", "datasets", "corpus")
 
 

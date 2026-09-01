@@ -188,3 +188,19 @@ Only after v0 produces a useful single-paper brief:
 5. Add scheduled delivery.
 
 Do not advance to a later stage until the current artifact gate passes.
+
+
+## Later Discovery And Ranking Layers
+
+After the single-paper v0 gate passes, the broader system should separate:
+
+```text
+discover -> rank -> founder-brief
+```
+
+Rules:
+
+- Discovery produces candidate papers only.
+- Ranking prioritizes candidates but does not create founder facts.
+- Founder briefs remain evidence-first and paper-specific.
+- Prefer boolean or categorical signal inputs over fake-precise numeric founder scores.

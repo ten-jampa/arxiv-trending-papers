@@ -110,3 +110,20 @@ Only after v0 is useful:
 - Evidence artifacts matter more than scoring formulas.
 - Source adapters should not contain founder judgment.
 - Brief generation can use judgment, but facts must come from artifacts.
+
+
+## Later Discover -> Rank -> Founder-Brief Shape
+
+Once v0 is useful, the next architecture should be:
+
+```text
+discover -> rank -> founder-brief
+```
+
+Where:
+
+- `discover` finds candidate papers
+- `rank` prioritizes them with explicit signal rules
+- `founder-brief` does the deeper evidence-backed analysis
+
+Prefer boolean or categorical signals for ranking rules. Avoid uncalibrated numeric founder scores.

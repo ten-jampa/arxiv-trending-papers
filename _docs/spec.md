@@ -170,3 +170,14 @@ A useful v0 brief lets a VC operator decide:
 2. Should v0 require Semantic Scholar, or gracefully run arXiv-only?
 3. Should LLM summarization be included in v0, or should v0 generate a template brief with extracted evidence only?
 4. What confidence threshold is required before surfacing GitHub/X/LinkedIn profiles?
+
+
+## Later System Shape
+
+After the single-paper founder brief is useful, the broader product should separate:
+
+```text
+discover -> rank -> founder-brief
+```
+
+And should prefer boolean or categorical signal inputs over fake-precise founder scores.
