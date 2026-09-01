@@ -106,3 +106,47 @@ def test_extract_founder_signals_does_not_promote_generic_pdf_urls_to_project_pa
     assert ("code_repo_present", "https://github.com/example/repo") in signal_types_urls
     assert ("project_page_present", "https://doi.org/10.5281/zenodo.22210928") not in signal_types_urls
     assert ("project_page_present", "https://openrouter.ai/docs/api/a") not in signal_types_urls
+
+
+def test_extract_founder_signals_adds_benchmark_or_dataset_signal_from_strong_metadata_cues() -> None:
+    candidate = CandidatePaper(
+        paper_id="arxiv:2608.31139v1",
+        arxiv_id="2608.31139v1",
+        source="arxiv",
+        url="https://arxiv.org/abs/2608.31139v1",
+        pdf_url="https://arxiv.org/pdf/2608.31139v1",
+        title="Configurable Semantic Chunking for Biomedical Information Extraction in Retrieval-Augmented Generation",
+        abstract="We evaluate the framework on biomedical relation extraction benchmarks and show consistent gains. The dataset setting remains unchanged.",
+        authors=["Alice Smith"],
+        published_at="2026-08-31T00:00:00Z",
+        updated_at="2026-08-31T00:00:00Z",
+        primary_category="cs.CL",
+        categories=["cs.CL"],
+        comment=None,
+        journal_ref=None,
+        doi=None,
+        links=[EvidenceLink(url="https://arxiv.org/abs/2608.31139v1", label="paper", source="arxiv_link", confidence="high")],
+        source_hits=[SourceHit(source="arxiv", source_url="https://arxiv.org/abs/2608.31139v1", observed_at="2026-09-01T00:00:00+00:00", raw_location=None, confidence="high")],
+        candidate_reason=["user-supplied arXiv paper"],
+        fetched_at="2026-09-01T00:00:00+00:00",
+    )
+    paper_text = PaperTextEvidence(
+        paper_id=candidate.paper_id,
+        pdf_url=candidate.pdf_url,
+        download_status="success",
+        text_extraction_status="success",
+        text_chars=100,
+        contact_block="Alice Smith",
+        emails=[],
+        email_domains=[],
+        affiliation_lines=[],
+        urls=[],
+        github_urls=[],
+        observed_at="2026-09-01T00:00:00+00:00",
+        errors=[],
+    )
+
+    signals = extract_founder_signals(candidate, paper_text)
+    signal_types = [s["signal_type"] for s in signals]
+
+    assert "benchmark_or_dataset_created" in signal_types

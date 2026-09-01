@@ -4,6 +4,7 @@ from founder_radar.models import CandidatePaper, FounderSignal, PaperTextEvidenc
 
 RL_HINTS = ("reinforcement learning", "rlhf", "grpo", "dapo", "policy optimization", "tool use", "tool-integrated")
 TOOLING_HINTS = ("tool", "tools", "workflow", "system", "infrastructure", "verification", "batching", "deploy", "reliability")
+BENCHMARK_HINTS = ("benchmark", "benchmarks", "dataset", "datasets", "corpus")
 
 
 def _signal(signal_type: str, paper_id: str, value: str | int | float | bool, confidence: str, evidence_url: str, evidence_note: str) -> dict:
@@ -34,6 +35,8 @@ def extract_founder_signals(candidate: CandidatePaper, paper_text: PaperTextEvid
         signals.append(_signal("agent_or_rl_systems_focus", candidate.paper_id, True, "medium", candidate.url, "Title or abstract mentions RL or tool-use systems"))
     if any(hint in combined_text for hint in TOOLING_HINTS):
         signals.append(_signal("infra_or_tooling_orientation", candidate.paper_id, True, "medium", candidate.url, "Title or abstract suggests tooling, workflow, or systems orientation"))
+    if any(hint in combined_text for hint in BENCHMARK_HINTS):
+        signals.append(_signal("benchmark_or_dataset_created", candidate.paper_id, True, "low", candidate.url, "Title or abstract mentions benchmark, dataset, or corpus language"))
 
     deduped: list[dict] = []
     seen: set[tuple[str, str]] = set()
