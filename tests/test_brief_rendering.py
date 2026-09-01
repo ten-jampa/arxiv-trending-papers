@@ -62,3 +62,54 @@ def test_render_founder_brief_includes_required_sections() -> None:
     assert "Yisen Xi" in brief
     assert "Independent Researcher, Beijing, China" in brief
     assert "https://github.com/example/repo" in brief
+
+
+def test_render_founder_brief_skips_when_no_founder_signals_exist() -> None:
+    candidate = CandidatePaper(
+        paper_id="arxiv:2608.31126v1",
+        arxiv_id="2608.31126v1",
+        source="arxiv",
+        url="https://arxiv.org/abs/2608.31126v1",
+        pdf_url="https://arxiv.org/pdf/2608.31126v1",
+        title="Bounded gaps between primes",
+        abstract="A pure math paper.",
+        authors=["Julia Stadlmann"],
+        published_at="2026-08-31T00:00:00Z",
+        updated_at="2026-08-31T00:00:00Z",
+        primary_category="math.NT",
+        categories=["math.NT"],
+        comment=None,
+        journal_ref=None,
+        doi=None,
+        links=[EvidenceLink(url="https://arxiv.org/abs/2608.31126v1", label="paper", source="arxiv_link", confidence="high")],
+        source_hits=[SourceHit(source="arxiv", source_url="https://arxiv.org/abs/2608.31126v1", observed_at="2026-09-01T00:00:00+00:00", raw_location=None, confidence="high")],
+        candidate_reason=["user-supplied arXiv paper"],
+        fetched_at="2026-09-01T00:00:00+00:00",
+    )
+    authors = [
+        ResolvedAuthor(
+            author_key="author-1",
+            name="Julia Stadlmann",
+            paper_author_string="Julia Stadlmann",
+            affiliation=None,
+            profiles={"semantic_scholar": None, "homepage": None, "lab_page": None, "github": None, "google_scholar": None, "dblp": None, "x": None, "linkedin": None},
+            identity_confidence="unresolved",
+            evidence=[EvidenceClaim(claim="Raw author preserved from arXiv metadata", source_url="https://arxiv.org/abs/2608.31126v1", observed_at="2026-09-01T00:00:00+00:00", confidence="high", notes=None)],
+            ambiguities=[],
+        )
+    ]
+    brief = render_founder_brief(candidate, authors, [])
+    assert "- Recommendation: skip" in brief
+    assert "- Confidence: low" in brief
+
+
+def test_render_founder_brief_watch_confidence_increases_for_multiple_signal_families() -> None:
+    candidate = make_candidate()
+    authors = []
+    signals = [
+        FounderSignal(author_key=None, paper_id=candidate.paper_id, signal_type="infra_or_tooling_orientation", value=True, confidence="medium", evidence_url=candidate.url, evidence_note="Tooling"),
+        FounderSignal(author_key=None, paper_id=candidate.paper_id, signal_type="benchmark_or_dataset_created", value=True, confidence="low", evidence_url=candidate.url, evidence_note="Benchmark"),
+    ]
+    brief = render_founder_brief(candidate, authors, signals)
+    assert "- Recommendation: watch" in brief
+    assert "- Confidence: medium" in brief

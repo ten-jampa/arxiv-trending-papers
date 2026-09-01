@@ -9,11 +9,13 @@ def _get(obj, key: str):
 
 def _recommendation(candidate: CandidatePaper, signals: list[FounderSignal]) -> tuple[str, str, str]:
     signal_types = {_get(signal, "signal_type") for signal in signals}
-    if "code_repo_present" in signal_types and "infra_or_tooling_orientation" in signal_types:
+    if not signal_types:
+        return ("skip", "low", "The pipeline found no founder-relevant evidence from the current artifacts.")
+    if "code_repo_present" in signal_types and len(signal_types) >= 2:
         return ("manual diligence needed", "medium", "Builder-like evidence exists, but identity and commercialization still need review.")
-    if signal_types:
-        return ("watch", "low", "There is some paper-native signal, but evidence is still thin for outreach.")
-    return ("manual diligence needed", "low", "The pipeline found limited founder-specific evidence so far.")
+    if len(signal_types) >= 2:
+        return ("watch", "medium", "Multiple founder-relevant signal families are present, but outreach evidence is still incomplete.")
+    return ("watch", "low", "There is some paper-native signal, but evidence is still thin for outreach.")
 
 
 def render_founder_brief(candidate: CandidatePaper, authors: list[ResolvedAuthor], signals: list[FounderSignal]) -> str:
