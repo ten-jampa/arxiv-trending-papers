@@ -11,7 +11,7 @@ This repo is at **Stage 1: artifact contracts** under the agentic-shipping workf
 The current goal is not to build a daily digest. The current goal is to constrain the first useful vertical slice:
 
 ```text
-one arXiv paper -> resolved authors -> founder signals -> Markdown sourcing brief
+one arXiv paper -> PDF evidence -> resolved authors -> founder signals -> Markdown sourcing brief
 ```
 
 ## Key Docs
@@ -36,6 +36,7 @@ The command should write:
 
 ```text
 artifacts/<run_id>/candidate_paper.json
+artifacts/<run_id>/paper_text_evidence.json
 artifacts/<run_id>/resolved_authors.json
 artifacts/<run_id>/founder_signals.json
 artifacts/<run_id>/founder_brief.md

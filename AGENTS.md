@@ -7,7 +7,7 @@ This repository is in **Stage 1: artifact contracts**.
 The first product slice is intentionally vertical and narrow:
 
 ```text
-one arXiv paper -> resolved authors -> founder signals -> Markdown founder-sourcing brief
+one arXiv paper -> PDF evidence -> resolved authors -> founder signals -> Markdown founder-sourcing brief
 ```
 
 Do not expand into batch ingestion, cron, dashboards, lab graphs, or generic paper digests until the v0 gate in `_docs/vertical-slice-v0.md` passes.
@@ -42,9 +42,10 @@ Single-context repo: use root `CONTEXT.md` and root `docs/adr/` when they exist.
 - Keep changes small and artifact-gated.
 - Every pipeline stage must write an inspectable artifact.
 - Facts in final briefs must trace to source URLs in artifacts.
+- Prefer code-native deterministic extraction before LLM calls: arXiv API, PDF download, `pdftotext`, regex/contact-block parsing, then optional LLM interpretation.
 - Sparse and true beats rich and fake.
 - Unknown fields must be `not found`, `not checked`, or `unresolved`.
-- Do not merge author identities by name alone.
+- Do not merge author identities by name alone, including LinkedIn candidates.
 - Do not add external paid services or secrets.
 - Do not add deployment/cron until the single-paper founder brief is useful.
 

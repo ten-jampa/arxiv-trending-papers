@@ -7,6 +7,7 @@ The data model exists to preserve evidence boundaries between stages. The founde
 ```text
 artifacts/<run_id>/
   candidate_paper.json
+  paper_text_evidence.json
   resolved_authors.json
   founder_signals.json
   founder_brief.md
@@ -57,6 +58,30 @@ observed_at: datetime
 raw_location: string|null
 confidence: high|medium|low
 ```
+
+## PaperTextEvidence
+
+```yaml
+paper_id: string
+pdf_url: string
+download_status: success|failed|not_checked
+text_extraction_status: success|failed|not_checked
+text_chars: integer
+contact_block: string|null
+emails: list[string]
+email_domains: list[string]
+affiliation_lines: list[string]
+urls: list[EvidenceLink]
+github_urls: list[EvidenceLink]
+observed_at: datetime
+errors: list[string]
+```
+
+Notes:
+
+- Email/domain evidence comes from the paper PDF, not from a durable profile database.
+- Affiliation lines are paper evidence, not proof of current employment.
+- GitHub URLs found in paper text should be stored even if author ownership is unresolved.
 
 ## ResolvedAuthor
 

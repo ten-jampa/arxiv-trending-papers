@@ -31,6 +31,7 @@ Required artifacts:
 
 ```text
 candidate_paper.json
+paper_text_evidence.json
 resolved_authors.json
 founder_signals.json
 founder_brief.md
@@ -76,8 +77,10 @@ The CLI must not emit metrics or profiles that were not fetched.
 Examples:
 
 - If no affiliation is available, write `Affiliation: not found`.
+- If the PDF cannot be downloaded or parsed, write `PDF evidence: not checked` or `PDF evidence: unavailable` with the error.
 - If Semantic Scholar is skipped or fails, write `Semantic Scholar: not checked`.
-- If GitHub is not directly linked or strongly corroborated, write `GitHub: not resolved`.
+- If LinkedIn lookup cannot be corroborated beyond name, write `LinkedIn: unresolved`.
+- If GitHub is not directly linked or strongly corroborated, write `GitHub profile: not resolved`; still store paper-provided GitHub repo URLs as repo links.
 - If a paper has a project link in arXiv comments, label it as `project link from arXiv comment`, not `official code` unless code is verified.
 
 ## Output Brief Shape

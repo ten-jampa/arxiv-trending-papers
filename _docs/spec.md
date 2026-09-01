@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Identify AI researchers who may become founders early enough to reach them before the market notices.
+Identify AI researchers who may become prospective founders early enough to reach them before the market notices.
 
-The system uses research-paper signals as an alternative sourcing layer for VC/investment work. It is not a generic paper digest and not a literature-review bot.
+The system uses research-paper signals as an alternative sourcing layer for VC/investment work. It is a prospective founder radar, not a generic paper digest and not a literature-review bot.
 
 ## Target User
 
@@ -46,7 +46,7 @@ The first implementation should support one paper only. Batch discovery and moni
 2. Normalize paper metadata into `candidate_paper.json`.
 3. Enumerate author strings from the paper.
 4. Resolve public author profiles only when evidence supports the match.
-5. Extract founder-relevant signals from verified paper metadata and resolved profiles.
+5. Extract founder-relevant signals from verified paper metadata, PDF text, and resolved profiles.
 6. Generate a Markdown founder-sourcing brief.
 7. Mark unknowns explicitly instead of filling gaps with plausible nonsense.
 
@@ -114,9 +114,11 @@ Allowed initial signal types:
 Allowed in v0:
 
 - arXiv API.
+- arXiv PDF download and text extraction.
 - Semantic Scholar public API, if available.
 - URLs present in arXiv metadata, comments, or abstract.
 - Public GitHub pages/repos only when linked directly or strongly matched with evidence.
+- LinkedIn profile lookup for authors, but only as public identity/contact enrichment and never by name alone.
 
 Optional but not required in v0:
 
@@ -125,7 +127,7 @@ Optional but not required in v0:
 
 Out of scope for v0:
 
-- Broad LinkedIn scraping.
+- Broad LinkedIn scraping or private-profile scraping.
 - Company-registration scraping.
 - X/Twitter monitoring beyond links already present in source metadata.
 - Lab-founder historical graph.
@@ -137,9 +139,11 @@ Out of scope for v0:
 
 1. User runs `founder-radar founder-brief 2608.28447`.
 2. The CLI fetches the arXiv record.
-3. The CLI writes normalized intermediate artifacts.
-4. The CLI resolves whatever author profiles can be resolved with evidence.
-5. The CLI emits a Markdown brief with high-confidence claims and explicit unknowns.
+3. The CLI downloads the PDF, extracts text, and parses the first-page contact/affiliation block when possible.
+4. The CLI writes normalized intermediate artifacts.
+5. The CLI resolves whatever author profiles can be resolved with evidence, including LinkedIn candidates when sufficiently corroborated.
+6. The CLI stores any GitHub URLs found in paper metadata/PDF/project pages as important builder-signal evidence.
+7. The CLI emits a Markdown brief with high-confidence claims and explicit unknowns.
 
 ## Success State
 

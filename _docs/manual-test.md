@@ -22,16 +22,20 @@ founder-radar founder-brief 2608.28447 --output artifacts/manual-test/founder_br
 
 ```text
 artifacts/manual-test/candidate_paper.json
+artifacts/manual-test/paper_text_evidence.json
 artifacts/manual-test/resolved_authors.json
 artifacts/manual-test/founder_signals.json
 artifacts/manual-test/founder_brief.md
 ```
 
 3. Confirm the paper metadata matches arXiv.
-4. Confirm all raw authors appear in `resolved_authors.json`.
-5. Confirm unresolved authors are marked `unresolved`, not guessed.
-6. Confirm every founder-relevant claim has an evidence URL.
-7. Confirm the brief includes unknowns/do-not-overclaim.
+4. Confirm `paper_text_evidence.json` records PDF download/extraction status.
+5. Confirm emails, domains, affiliation-ish lines, and GitHub URLs are extracted when present.
+6. Confirm all raw authors appear in `resolved_authors.json`.
+7. Confirm unresolved authors are marked `unresolved`, not guessed.
+8. Confirm LinkedIn candidates are not accepted without corroboration beyond name.
+9. Confirm every founder-relevant claim has an evidence URL.
+10. Confirm the brief includes unknowns/do-not-overclaim.
 
 ### Expected Results
 

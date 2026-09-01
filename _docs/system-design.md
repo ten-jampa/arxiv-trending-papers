@@ -5,7 +5,7 @@
 Cut vertically. Every stage produces an inspectable artifact. The final founder brief must be traceable back to source evidence.
 
 ```text
-Paper Discovery -> Author Resolution -> Founder-Signal Extraction -> Founder Brief
+Paper Discovery -> PDF Evidence Extraction -> Author Resolution -> Founder-Signal Extraction -> Founder Brief
 ```
 
 v0 executes this pipeline for **one paper**. Batch discovery comes later.
@@ -44,7 +44,31 @@ Non-responsibilities:
 - Author identity merging.
 - Trend scoring.
 
-## Stage 2: Author Resolution
+## Stage 2: PDF Evidence Extraction
+
+Purpose: extract paper-native author/contact evidence before broad profile lookup.
+
+Artifact:
+
+```text
+artifacts/<run_id>/paper_text_evidence.json
+```
+
+Responsibilities:
+
+- Download the arXiv PDF.
+- Extract text with `pdftotext` or equivalent.
+- Parse the first-page contact block when possible.
+- Extract emails, email domains, affiliation-ish lines, and URLs.
+- Store GitHub URLs found in the PDF as high-priority builder-signal candidates with source location.
+
+Non-responsibilities:
+
+- Claiming permanent employment from an email domain.
+- Treating every extracted URL as official code.
+- Inferring founder intent.
+
+## Stage 3: Author Resolution
 
 Purpose: turn raw author strings into evidence-backed public-person candidates.
 
@@ -56,11 +80,13 @@ artifacts/<run_id>/resolved_authors.json
 
 Resolution sources, in preferred order:
 
-1. Author links from the paper/project page.
-2. Semantic Scholar author records tied to the paper.
-3. Homepage/lab page found through source-linked pages.
-4. GitHub only if directly linked or strongly corroborated.
-5. X/LinkedIn only if directly linked or strongly corroborated.
+1. PDF contact block: emails, domains, affiliation lines.
+2. Author links from the paper/project page.
+3. Semantic Scholar author records tied to the paper.
+4. LinkedIn public profile lookup, mainly for identity/contact enrichment, requiring corroborating evidence beyond name.
+5. Homepage/lab page found through source-linked pages.
+6. GitHub only if directly linked or strongly corroborated; paper-provided GitHub repo URLs are stored even if author ownership is not resolved.
+7. X only if directly linked or strongly corroborated.
 
 Identity rules:
 
@@ -69,7 +95,7 @@ Identity rules:
 - If ambiguous, emit multiple candidates or mark unresolved.
 - It is acceptable for most authors to remain unresolved in v0.
 
-## Stage 3: Founder-Signal Extraction
+## Stage 4: Founder-Signal Extraction
 
 Purpose: extract evidence-backed signals relevant to founder sourcing.
 
@@ -95,7 +121,7 @@ Signal rules:
 - Do not infer founder intent from prestige alone.
 - Do not label someone founder-ready without builder/commercial evidence.
 
-## Stage 4: Founder Brief Generation
+## Stage 5: Founder Brief Generation
 
 Purpose: produce the human-facing sourcing artifact.
 
@@ -139,6 +165,7 @@ Expected side effects:
 
 ```text
 artifacts/<run_id>/candidate_paper.json
+artifacts/<run_id>/paper_text_evidence.json
 artifacts/<run_id>/resolved_authors.json
 artifacts/<run_id>/founder_signals.json
 artifacts/<run_id>/founder_brief.md
