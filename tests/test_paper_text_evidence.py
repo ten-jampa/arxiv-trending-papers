@@ -62,3 +62,20 @@ def test_extract_paper_text_evidence_without_pdf_url() -> None:
     assert data["download_status"] == "not_checked"
     assert data["text_extraction_status"] == "not_checked"
     assert data["errors"] == ["PDF URL not found in candidate paper artifact"]
+
+
+def test_parse_pdf_text_evidence_stops_contact_block_at_abstract_variants() -> None:
+    text = """Example Title
+Alice Smith, Bob Jones
+University of Example
+Abstract— This section starts here.
+More body text.
+1. Introduction
+"""
+    evidence = parse_pdf_text_evidence(
+        paper_id="arxiv:1",
+        pdf_url="https://example.com/paper.pdf",
+        text=text,
+        observed_at="2026-09-01T00:00:00+00:00",
+    )
+    assert evidence.contact_block == "Example Title\nAlice Smith, Bob Jones\nUniversity of Example"

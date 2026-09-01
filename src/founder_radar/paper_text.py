@@ -28,7 +28,9 @@ AFFILIATION_HINTS = (
     "amazon",
     "nvidia",
 )
-STOP_CONTACT_BLOCK = ("abstract", "1 introduction", "introduction")
+STOP_CONTACT_BLOCK = ("abstract", "introduction")
+SECTION_START_RE = re.compile(r"^\d+[.:]?\s+introduction\b", re.IGNORECASE)
+
 
 
 def _dedupe_keep_order(values: list[str]) -> list[str]:
@@ -51,7 +53,8 @@ def _extract_contact_block(text: str) -> str | None:
     for line in lines:
         if not line and not kept:
             continue
-        if line.lower() in STOP_CONTACT_BLOCK:
+        lower = line.lower()
+        if lower in STOP_CONTACT_BLOCK or lower.startswith("abstract") or SECTION_START_RE.match(line):
             break
         kept.append(line)
         if len(kept) >= 12:
