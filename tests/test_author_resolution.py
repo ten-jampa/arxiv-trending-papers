@@ -101,3 +101,51 @@ def test_resolve_authors_uses_single_author_paper_native_affiliation() -> None:
     claims = [item["claim"] for item in author["evidence"]]
     assert "Paper-native affiliation from PDF contact block" in claims
     assert "Paper-native email domain from PDF contact block" in claims
+
+
+def test_resolve_authors_uses_shared_affiliation_for_two_author_paper_without_claiming_email_match() -> None:
+    candidate = CandidatePaper(
+        paper_id="arxiv:2608.31170v1",
+        arxiv_id="2608.31170v1",
+        source="arxiv",
+        url="https://arxiv.org/abs/2608.31170v1",
+        pdf_url="https://arxiv.org/pdf/2608.31170v1",
+        title="Two Author Paper",
+        abstract="Example abstract",
+        authors=["Carlos Bain", "Max Bain"],
+        published_at="2026-08-31T00:00:00Z",
+        updated_at="2026-08-31T00:00:00Z",
+        primary_category="cs.CL",
+        categories=["cs.CL"],
+        comment=None,
+        journal_ref=None,
+        doi=None,
+        links=[EvidenceLink(url="https://arxiv.org/abs/2608.31170v1", label="paper", source="arxiv_link", confidence="high")],
+        source_hits=[SourceHit(source="arxiv", source_url="https://arxiv.org/abs/2608.31170v1", observed_at="2026-09-01T00:00:00+00:00", raw_location=None, confidence="high")],
+        candidate_reason=["user-supplied arXiv paper"],
+        fetched_at="2026-09-01T00:00:00+00:00",
+    )
+    paper_text = PaperTextEvidence(
+        paper_id=candidate.paper_id,
+        pdf_url=candidate.pdf_url,
+        download_status="success",
+        text_extraction_status="success",
+        text_chars=100,
+        contact_block="Carlos Bain, Max Bain\nUniversity of Oxford",
+        emails=["carlos.o.bain@gmail.com"],
+        email_domains=["gmail.com"],
+        affiliation_lines=["University of Oxford"],
+        urls=[],
+        github_urls=[],
+        observed_at="2026-09-01T00:00:00+00:00",
+        errors=[],
+    )
+
+    authors = resolve_authors(candidate, paper_text)
+
+    assert [author["affiliation"] for author in authors] == ["University of Oxford", "University of Oxford"]
+    assert all(author["identity_confidence"] == "unresolved" for author in authors)
+    for author in authors:
+        claims = [item["claim"] for item in author["evidence"]]
+        assert "Shared paper-native affiliation from PDF contact block" in claims
+        assert "Paper-native email domain from PDF contact block" not in claims

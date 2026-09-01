@@ -18,6 +18,7 @@ def resolve_authors(candidate: CandidatePaper, paper_text: PaperTextEvidence) ->
     authors: list[dict] = []
     single_affiliation = paper_text.affiliation_lines[0] if len(candidate.authors) == 1 and len(paper_text.affiliation_lines) == 1 else None
     single_domain = paper_text.email_domains[0] if len(candidate.authors) == 1 and len(paper_text.email_domains) == 1 else None
+    shared_affiliation = paper_text.affiliation_lines[0] if len(candidate.authors) == 2 and len(paper_text.affiliation_lines) == 1 else None
 
     for index, raw_author in enumerate(candidate.authors, start=1):
         evidence = [
@@ -29,7 +30,9 @@ def resolve_authors(candidate: CandidatePaper, paper_text: PaperTextEvidence) ->
                 notes=None,
             )
         ]
+        affiliation = None
         if single_affiliation is not None:
+            affiliation = single_affiliation
             evidence.append(
                 EvidenceClaim(
                     claim="Paper-native affiliation from PDF contact block",
@@ -49,12 +52,23 @@ def resolve_authors(candidate: CandidatePaper, paper_text: PaperTextEvidence) ->
                     notes=single_domain,
                 )
             )
+        if shared_affiliation is not None:
+            affiliation = shared_affiliation
+            evidence.append(
+                EvidenceClaim(
+                    claim="Shared paper-native affiliation from PDF contact block",
+                    source_url=candidate.pdf_url or candidate.url,
+                    observed_at=paper_text.observed_at,
+                    confidence="low",
+                    notes=shared_affiliation,
+                )
+            )
 
         author = ResolvedAuthor(
             author_key=f"author-{index}",
             name=raw_author,
             paper_author_string=raw_author,
-            affiliation=single_affiliation,
+            affiliation=affiliation,
             profiles=dict(EMPTY_PROFILES),
             identity_confidence="unresolved",
             evidence=evidence,
