@@ -62,7 +62,7 @@ def test_cli_writes_candidate_and_paper_text_artifacts_and_brief(tmp_path: Path,
     ]
 
     monkeypatch.setattr(cli, "fetch_candidate_paper", lambda _: candidate)
-    monkeypatch.setattr(cli, "extract_paper_text_evidence", lambda _candidate: paper_text_evidence)
+    monkeypatch.setattr(cli, "extract_paper_text_evidence", lambda _candidate, contact_parser=None: paper_text_evidence)
     monkeypatch.setattr(cli, "resolve_authors", lambda _candidate, _paper_text: resolved_authors)
     monkeypatch.setattr(cli, "extract_founder_signals", lambda _candidate, _paper_text: founder_signals)
     artifacts_dir = tmp_path / "artifacts"

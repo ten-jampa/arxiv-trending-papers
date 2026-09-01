@@ -8,6 +8,7 @@ from pathlib import Path
 from founder_radar.arxiv import ArxivNotFoundError, fetch_candidate_paper, parse_arxiv_id
 from founder_radar.author_resolution import resolve_authors
 from founder_radar.brief import render_founder_brief
+from founder_radar.contact_parser import apply_contact_parser, call_openai_contact_parser
 from founder_radar.founder_signals import extract_founder_signals
 from founder_radar.paper_text import extract_paper_text_evidence
 
@@ -20,12 +21,22 @@ def build_parser() -> argparse.ArgumentParser:
     founder_brief.add_argument("arxiv_id_or_url")
     founder_brief.add_argument("--output", type=Path, default=None, help="Write final Markdown brief to this path")
     founder_brief.add_argument("--artifacts-dir", type=Path, default=None, help="Directory for intermediate artifacts")
+    founder_brief.add_argument("--llm-contact-parser", action="store_true", help="Use optional OpenAI contact-block cleanup after deterministic extraction")
     return parser
 
 
 def _default_artifacts_dir(arxiv_id: str) -> Path:
     safe_id = arxiv_id.replace('/', '_')
     return Path("artifacts") / safe_id
+
+
+def _maybe_llm_contact_parser(enabled: bool):
+    if not enabled:
+        return None
+    def parser(evidence):
+        result = call_openai_contact_parser(evidence)
+        return apply_contact_parser(evidence, result)
+    return parser
 
 
 def cmd_founder_brief(args: argparse.Namespace) -> int:
@@ -48,7 +59,8 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
     candidate_path = artifacts_dir / "candidate_paper.json"
     candidate_path.write_text(json.dumps(candidate.to_dict(), indent=2) + "\n")
 
-    paper_text_evidence = extract_paper_text_evidence(candidate)
+    contact_parser = _maybe_llm_contact_parser(args.llm_contact_parser)
+    paper_text_evidence = extract_paper_text_evidence(candidate, contact_parser=contact_parser)
     paper_text_path = artifacts_dir / "paper_text_evidence.json"
     paper_text_path.write_text(json.dumps(paper_text_evidence.to_dict(), indent=2) + "\n")
 

@@ -130,7 +130,7 @@ def _extract_text_from_pdf_bytes(pdf_bytes: bytes) -> str:
     return result.stdout
 
 
-def extract_paper_text_evidence(candidate: CandidatePaper) -> PaperTextEvidence:
+def extract_paper_text_evidence(candidate: CandidatePaper, contact_parser=None) -> PaperTextEvidence:
     observed_at = datetime.now(UTC).isoformat()
     if not candidate.pdf_url:
         return PaperTextEvidence(
@@ -168,7 +168,10 @@ def extract_paper_text_evidence(candidate: CandidatePaper) -> PaperTextEvidence:
         )
     try:
         text = _extract_text_from_pdf_bytes(pdf_bytes)
-        return parse_pdf_text_evidence(candidate.paper_id, candidate.pdf_url, text, observed_at=observed_at)
+        evidence = parse_pdf_text_evidence(candidate.paper_id, candidate.pdf_url, text, observed_at=observed_at)
+        if contact_parser is not None:
+            evidence = contact_parser(evidence)
+        return evidence
     except Exception as exc:
         return PaperTextEvidence(
             paper_id=candidate.paper_id,
