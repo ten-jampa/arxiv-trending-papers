@@ -53,3 +53,51 @@ def test_resolve_authors_preserves_raw_strings_and_marks_unresolved() -> None:
     assert [author["identity_confidence"] for author in authors] == ["unresolved", "unresolved"]
     assert all(author["profiles"]["linkedin"] is None for author in authors)
     assert all(author["ambiguities"] == [] for author in authors)
+
+
+def test_resolve_authors_uses_single_author_paper_native_affiliation() -> None:
+    candidate = CandidatePaper(
+        paper_id="arxiv:2608.31142v1",
+        arxiv_id="2608.31142v1",
+        source="arxiv",
+        url="https://arxiv.org/abs/2608.31142v1",
+        pdf_url="https://arxiv.org/pdf/2608.31142v1",
+        title="Single Author Paper",
+        abstract="Example abstract",
+        authors=["Yisen Xi"],
+        published_at="2026-08-31T00:00:00Z",
+        updated_at="2026-08-31T00:00:00Z",
+        primary_category="cs.AI",
+        categories=["cs.AI"],
+        comment=None,
+        journal_ref=None,
+        doi=None,
+        links=[EvidenceLink(url="https://arxiv.org/abs/2608.31142v1", label="paper", source="arxiv_link", confidence="high")],
+        source_hits=[SourceHit(source="arxiv", source_url="https://arxiv.org/abs/2608.31142v1", observed_at="2026-09-01T00:00:00+00:00", raw_location=None, confidence="high")],
+        candidate_reason=["user-supplied arXiv paper"],
+        fetched_at="2026-09-01T00:00:00+00:00",
+    )
+    paper_text = PaperTextEvidence(
+        paper_id=candidate.paper_id,
+        pdf_url=candidate.pdf_url,
+        download_status="success",
+        text_extraction_status="success",
+        text_chars=100,
+        contact_block="Yisen Xi\nIndependent Researcher, Beijing, China\nxys21@tsinghua.org.cn",
+        emails=["xys21@tsinghua.org.cn"],
+        email_domains=["tsinghua.org.cn"],
+        affiliation_lines=["Independent Researcher, Beijing, China"],
+        urls=[],
+        github_urls=[],
+        observed_at="2026-09-01T00:00:00+00:00",
+        errors=[],
+    )
+
+    authors = resolve_authors(candidate, paper_text)
+    author = authors[0]
+
+    assert author["identity_confidence"] == "unresolved"
+    assert author["affiliation"] == "Independent Researcher, Beijing, China"
+    claims = [item["claim"] for item in author["evidence"]]
+    assert "Paper-native affiliation from PDF contact block" in claims
+    assert "Paper-native email domain from PDF contact block" in claims
