@@ -10,9 +10,12 @@ from datetime import UTC, datetime
 
 from founder_radar.models import CandidatePaper, EvidenceLink, SourceHit
 
-ARXIV_API_URL = "https://export.arxiv.org/api/query?search_query=id:{arxiv_id}&start=0&max_results=1"
+ARXIV_ID_LIST_API_URL = "https://export.arxiv.org/api/query?id_list={arxiv_id}&start=0&max_results=1"
 ATOM_NS = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
+# New-style IDs (2007+), e.g. 2608.28447 or 2608.28447v1.
 ARXIV_ID_RE = re.compile(r"^(?P<base>\d{4}\.\d{4,5})(?P<version>v\d+)?$")
+# Old-style IDs (pre-2007), e.g. math/0211159, hep-th/9711200v1, cs.AI/0601001.
+OLD_STYLE_ARXIV_ID_RE = re.compile(r"^(?P<archive>[a-z-]+(?:\.[A-Z]{2})?)/(?P<num>\d{7})(?P<version>v\d+)?$")
 URL_RE = re.compile(r"https?://\S+")
 
 # arXiv Terms of Use (info.arxiv.org/help/api/tou.html) and the API user manual
@@ -61,12 +64,14 @@ def parse_arxiv_id(value: str) -> str:
         parsed = urllib.parse.urlparse(raw)
         path = parsed.path.rstrip("/")
         parts = [part for part in path.split("/") if part]
-        if len(parts) >= 2 and parts[-2] in {"abs", "pdf"}:
-            candidate = parts[-1]
+        if len(parts) >= 2 and parts[0] in {"abs", "pdf"}:
+            # New-style URL: /abs/2608.28447 (2 segments).
+            # Old-style URL: /abs/math/0211159 (3 segments: archive + number).
+            candidate = "/".join(parts[1:])
             if candidate.endswith(".pdf"):
                 candidate = candidate[:-4]
             raw = candidate
-    match = ARXIV_ID_RE.fullmatch(raw)
+    match = ARXIV_ID_RE.fullmatch(raw) or OLD_STYLE_ARXIV_ID_RE.fullmatch(raw)
     if not match:
         raise ValueError(f"Invalid arXiv ID or URL: {value}")
     return raw
@@ -79,7 +84,11 @@ def canonical_paper_id(arxiv_id: str) -> str:
 
 
 def build_query_url(arxiv_id: str) -> str:
-    return ARXIV_API_URL.format(arxiv_id=arxiv_id)
+    # id_list= is used uniformly (rather than search_query=id:) because it is the
+    # only one of the two arXiv API query mechanisms that reliably resolves
+    # old-style archive/NNNNNNN IDs (e.g. math/0211159) in addition to new-style
+    # IDs; verified against the live arXiv API for both ID shapes.
+    return ARXIV_ID_LIST_API_URL.format(arxiv_id=urllib.parse.quote(arxiv_id, safe=""))
 
 
 def _fetch_url_with_backoff(
@@ -197,7 +206,16 @@ def normalize_entry(entry: ET.Element, fetched_at: str | None = None) -> Candida
     entry_id = _text(entry, "atom:id")
     if not entry_id:
         raise ValueError("Missing arXiv entry id")
-    arxiv_id = entry_id.rsplit("/", 1)[-1]
+    # entry_id looks like "http://arxiv.org/abs/2608.28447v1" (new-style) or
+    # "http://arxiv.org/abs/math/0211159v1" (old-style, archive-prefixed). A
+    # plain rsplit("/", 1) would drop the archive prefix on old-style IDs, so
+    # extract everything after the "/abs/" segment instead.
+    abs_marker = "/abs/"
+    marker_index = entry_id.find(abs_marker)
+    if marker_index != -1:
+        arxiv_id = entry_id[marker_index + len(abs_marker):]
+    else:
+        arxiv_id = entry_id.rsplit("/", 1)[-1]
     title = _text(entry, "atom:title") or ""
     abstract = _text(entry, "atom:summary") or ""
     comment = _text(entry, "arxiv:comment")

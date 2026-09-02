@@ -23,14 +23,34 @@ def _signal(signal_type: str, paper_id: str, value: str | int | float | bool, co
 def extract_founder_signals(candidate: CandidatePaper, paper_text: PaperTextEvidence, notable_people_path=None) -> list[dict]:
     signals: list[dict] = []
     combined_text = f"{candidate.title} {candidate.abstract}".lower()
+    confirmed_code_urls: set[str] = set()
 
     for link in candidate.links:
         if link.label == "project":
             signals.append(_signal("project_page_present", candidate.paper_id, True, link.confidence, link.url, f"Project link from {link.source}"))
         if link.label == "code":
             signals.append(_signal("code_repo_present", candidate.paper_id, True, link.confidence, link.url, f"Code link from {link.source}"))
+            confirmed_code_urls.add(link.url)
     for link in paper_text.github_urls:
-        signals.append(_signal("code_repo_present", candidate.paper_id, True, link.confidence, link.url, "GitHub URL from PDF text"))
+        if link.url in confirmed_code_urls:
+            # Already confirmed as the paper's own repo via arXiv metadata; do not
+            # also emit a contradictory "unconfirmed third-party reference" signal
+            # for the same URL just because it also appears in the raw PDF text.
+            continue
+        if link.notes:
+            signals.append(_signal("code_repo_present", candidate.paper_id, True, link.confidence, link.url, f"GitHub URL from PDF text. {link.notes}."))
+            confirmed_code_urls.add(link.url)
+        else:
+            signals.append(
+                _signal(
+                    "related_code_reference",
+                    candidate.paper_id,
+                    True,
+                    "low",
+                    link.url,
+                    "GitHub URL found in PDF text with no nearby ownership language; likely a cited third-party repository, not confirmed as paper-owned",
+                )
+            )
 
     if any(hint in combined_text for hint in RL_HINTS):
         signals.append(_signal("agent_or_rl_systems_focus", candidate.paper_id, True, "medium", candidate.url, "Title or abstract mentions RL or tool-use systems"))

@@ -20,6 +20,15 @@ https://arxiv.org/abs/2608.28447
 https://arxiv.org/pdf/2608.28447
 ```
 
+Old-style, pre-2007 archive-prefixed IDs are also accepted (bare ID or full URL):
+
+```text
+math/0211159
+hep-th/9711200v1
+https://arxiv.org/abs/math/0211159
+https://arxiv.org/pdf/hep-th/9711200.pdf
+```
+
 Options (implemented):
 
 - `--output PATH`: write final Markdown brief to a path. Defaults to `<artifacts-dir>/founder_brief.md`.
@@ -40,6 +49,19 @@ resolved_authors.json
 founder_signals.json
 founder_brief.md
 ```
+
+Conditional artifact:
+
+```text
+founder_brief_authors_detail.md
+```
+
+Written only when the paper lists more than 10 authors (`AUTHOR_SUMMARY_THRESHOLD`
+in `src/founder_radar/brief.py`). Above that threshold, `founder_brief.md` shows a
+bounded "Principal Contacts" subset (first author, last author, any notable-watchlist
+match, any author with a paper-native email match; capped at 5) instead of one full
+block per author, to stay triage-useful. `founder_brief_authors_detail.md` and
+`resolved_authors.json` always contain every author, regardless of count.
 
 Exit codes (implemented):
 
@@ -90,6 +112,8 @@ Examples:
 - If LinkedIn lookup cannot be corroborated beyond name, write `LinkedIn: unresolved`.
 - If GitHub is not directly linked or strongly corroborated, write `GitHub profile: not resolved`; still store paper-provided GitHub repo URLs as repo links.
 - If a paper has a project link in arXiv comments, label it as `project link from arXiv comment`, not `official code` unless code is verified.
+- If a GitHub URL is found in PDF text with no nearby ownership language (an explicit cue phrase, or proximity to a contact email), emit it as `related_code_reference` (low confidence), not `code_repo_present`. Only URLs from arXiv metadata (`links` with `label: code`) or PDF text with a nearby ownership cue are `code_repo_present`.
+- If arXiv metadata indicates a paper has been withdrawn, or the PDF could not be downloaded/parsed, surface this explicitly in the brief's `## Verdict` section, not only in the JSON artifacts.
 
 ## Output Brief Shape
 

@@ -103,7 +103,10 @@ def test_extract_founder_signals_does_not_promote_generic_pdf_urls_to_project_pa
     signals = extract_founder_signals(candidate, paper_text)
     signal_types_urls = [(s["signal_type"], s["evidence_url"]) for s in signals]
 
-    assert ("code_repo_present", "https://github.com/example/repo") in signal_types_urls
+    # No nearby ownership language was captured for this GitHub URL, so it should be
+    # treated as an unverified reference rather than an overclaimed builder signal.
+    assert ("related_code_reference", "https://github.com/example/repo") in signal_types_urls
+    assert ("code_repo_present", "https://github.com/example/repo") not in signal_types_urls
     assert ("project_page_present", "https://doi.org/10.5281/zenodo.22210928") not in signal_types_urls
     assert ("project_page_present", "https://openrouter.ai/docs/api/a") not in signal_types_urls
 
@@ -403,3 +406,61 @@ def test_extract_founder_signals_does_not_drop_distinct_notable_coauthor_matches
     matched_names = {m["evidence_note"].split("'")[1] for m in matches}
     assert len(matches) == 2
     assert matched_names == {"Noah Hollmann", "Frank Hutter"}
+
+
+def test_extract_founder_signals_downgrades_third_party_github_urls_without_ownership_cue() -> None:
+    candidate = make_candidate()
+    paper_text = PaperTextEvidence(
+        paper_id=candidate.paper_id,
+        pdf_url=candidate.pdf_url,
+        download_status="success",
+        text_extraction_status="success",
+        text_chars=100,
+        contact_block="Alice Smith",
+        emails=[],
+        email_domains=[],
+        affiliation_lines=[],
+        urls=[],
+        github_urls=[
+            EvidenceLink(url="https://github.com/example/own-repo", label="code", source="pdf_text", confidence="medium", notes="Nearby text suggests this is the paper's own repository (cue: \"code is available\")"),
+            EvidenceLink(url="https://github.com/other-org/cited-tool", label="code", source="pdf_text", confidence="medium", notes=None),
+        ],
+        observed_at="2026-09-01T00:00:00+00:00",
+        errors=[],
+    )
+
+    signals = extract_founder_signals(candidate, paper_text)
+    by_url = {s["evidence_url"]: s for s in signals if s["evidence_url"].startswith("https://github.com")}
+
+    assert by_url["https://github.com/example/own-repo"]["signal_type"] == "code_repo_present"
+    assert by_url["https://github.com/other-org/cited-tool"]["signal_type"] == "related_code_reference"
+    assert by_url["https://github.com/other-org/cited-tool"]["confidence"] == "low"
+
+
+def test_extract_founder_signals_does_not_duplicate_confirmed_repo_as_unconfirmed_reference() -> None:
+    candidate = make_candidate()
+    candidate.links = [
+        EvidenceLink(url="https://arxiv.org/abs/2608.28447v1", label="paper", source="arxiv_link", confidence="high"),
+        EvidenceLink(url="https://github.com/example/tool-rl", label="code", source="abstract", confidence="high"),
+    ]
+    paper_text = PaperTextEvidence(
+        paper_id=candidate.paper_id,
+        pdf_url=candidate.pdf_url,
+        download_status="success",
+        text_extraction_status="success",
+        text_chars=100,
+        contact_block="Alice Smith",
+        emails=[],
+        email_domains=[],
+        affiliation_lines=[],
+        urls=[],
+        github_urls=[EvidenceLink(url="https://github.com/example/tool-rl", label="code", source="pdf_text", confidence="medium", notes=None)],
+        observed_at="2026-09-01T00:00:00+00:00",
+        errors=[],
+    )
+
+    signals = extract_founder_signals(candidate, paper_text)
+    matching = [s for s in signals if s["evidence_url"] == "https://github.com/example/tool-rl"]
+
+    assert len(matching) == 1
+    assert matching[0]["signal_type"] == "code_repo_present"

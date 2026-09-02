@@ -7,7 +7,7 @@ from pathlib import Path
 
 from founder_radar.arxiv import ArxivNotFoundError, fetch_candidate_paper, parse_arxiv_id
 from founder_radar.author_resolution import resolve_authors
-from founder_radar.brief import render_founder_brief
+from founder_radar.brief import AUTHOR_DETAIL_FILENAME, AUTHOR_SUMMARY_THRESHOLD, render_author_detail_document, render_founder_brief
 from founder_radar.contact_parser import apply_contact_parser, call_openai_contact_parser
 from founder_radar.founder_signals import extract_founder_signals
 from founder_radar.paper_text import extract_paper_text_evidence
@@ -72,7 +72,7 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
     founder_signals_path = artifacts_dir / "founder_signals.json"
     founder_signals_path.write_text(json.dumps(founder_signals, indent=2) + "\n")
 
-    brief_text = render_founder_brief(candidate, resolved_authors, founder_signals)
+    brief_text = render_founder_brief(candidate, resolved_authors, founder_signals, paper_text=paper_text_evidence)
     output_path = args.output or artifacts_dir / "founder_brief.md"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(brief_text)
@@ -82,6 +82,12 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
     print(f"Wrote {resolved_authors_path}")
     print(f"Wrote {founder_signals_path}")
     print(f"Wrote {output_path}")
+
+    if len(resolved_authors) > AUTHOR_SUMMARY_THRESHOLD:
+        detail_text = render_author_detail_document(candidate, resolved_authors, founder_signals)
+        detail_path = output_path.parent / AUTHOR_DETAIL_FILENAME
+        detail_path.write_text(detail_text)
+        print(f"Wrote {detail_path}")
     return 0
 
 

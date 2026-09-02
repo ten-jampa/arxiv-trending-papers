@@ -40,3 +40,32 @@ def test_normalize_arxiv_entry() -> None:
     assert data["pdf_url"] == "http://arxiv.org/pdf/2608.28447v1"
     assert any(link["url"] == "https://github.com/example/tool-rl" for link in data["links"])
     assert any(link["url"] == "https://example.com/project" for link in data["links"])
+
+
+OLD_STYLE_ATOM_XML = """<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <entry>
+    <id>http://arxiv.org/abs/math/0211159v1</id>
+    <updated>2002-11-11T16:11:49Z</updated>
+    <published>2002-11-11T16:11:49Z</published>
+    <title>The entropy formula for the Ricci flow and its geometric applications</title>
+    <summary>An entropy formula.</summary>
+    <author><name>Grisha Perelman</name></author>
+    <link href="http://arxiv.org/abs/math/0211159v1" rel="alternate" type="text/html" />
+    <link title="pdf" href="http://arxiv.org/pdf/math/0211159v1" rel="related" type="application/pdf" />
+    <arxiv:primary_category term="math.DG" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="math.DG" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>
+"""
+
+
+def test_normalize_arxiv_entry_preserves_old_style_archive_prefix() -> None:
+    root = ET.fromstring(OLD_STYLE_ATOM_XML)
+    entry = root.find("atom:entry", ATOM_NS)
+    assert entry is not None
+    paper = normalize_entry(entry, fetched_at="2026-09-01T00:00:00+00:00")
+    data = paper.to_dict()
+
+    assert data["paper_id"] == "arxiv:math/0211159v1"
+    assert data["arxiv_id"] == "math/0211159v1"

@@ -10,6 +10,10 @@ from pathlib import Path
 from founder_radar.models import CandidatePaper, EvidenceLink, PaperTextEvidence
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+BRACE_EMAIL_RE = re.compile(r"\{([^{}]+)\}@([A-Za-z0-9.-]+\.[A-Za-z]{2,})")
+STANDALONE_EMAIL_LINE_RE = re.compile(
+    r"^\s*(?:[A-Za-z0-9._%+-]+|\{[^{}]+\})@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\s*[.,;]?\s*$"
+)
 URL_RE = re.compile(r"https?://\S+")
 AFFILIATION_HINTS = (
     "university",
@@ -27,6 +31,10 @@ AFFILIATION_HINTS = (
     "meta",
     "amazon",
     "nvidia",
+)
+AFFILIATION_PATTERNS = tuple(
+    re.compile(r"(?<![\w@.])" + re.escape(hint) + r"(?![\w])", re.IGNORECASE)
+    for hint in AFFILIATION_HINTS
 )
 STOP_CONTACT_BLOCK = ("abstract", "introduction")
 SECTION_START_RE = re.compile(r"^\d+[.:]?\s+introduction\b", re.IGNORECASE)
@@ -69,32 +77,89 @@ def _extract_affiliation_lines(block: str | None) -> list[str]:
     lines = [" ".join(line.split()) for line in block.splitlines()]
     matches = []
     for line in lines:
-        lower = line.lower()
-        if any(hint in lower for hint in AFFILIATION_HINTS):
+        if not line or STANDALONE_EMAIL_LINE_RE.match(line):
+            continue
+        if any(pattern.search(line) for pattern in AFFILIATION_PATTERNS):
             matches.append(line)
     return _dedupe_keep_order([line for line in matches if line])
+
+
+OWNERSHIP_CUE_HINTS = (
+    "code is available",
+    "code available",
+    "official implementation",
+    "we release",
+    "released at",
+    "our code",
+    "our implementation",
+    "publicly available at",
+    "open-source implementation",
+    "open source implementation",
+    "we open-source",
+    "we open source",
+    "code:",
+    "github:",
+    "project page:",
+    "correspondence",
+    "corresponding author",
+)
+
+
+def _ownership_hint_note(text: str, url_start: int, url_end: int, window_floor: int = 0) -> str | None:
+    window_start = max(window_floor, url_start - 220)
+    before = text[window_start:url_start]
+    after = text[url_end:url_end + 60]
+    before_lower = before.lower()
+    for cue in OWNERSHIP_CUE_HINTS:
+        if cue in before_lower:
+            return f"Nearby text suggests this is the paper's own repository (cue: \"{cue}\")"
+    # Common academic convention: the paper's own repo link is placed immediately
+    # next to the corresponding-author contact email (before or after the URL),
+    # not buried mid-paragraph like a related-work citation. Check both plain and
+    # brace-grouped ({a,b,c}@domain) email shapes.
+    nearby_email_window = before[-220:] + after
+    if EMAIL_RE.search(nearby_email_window) or BRACE_EMAIL_RE.search(nearby_email_window):
+        return "Nearby text includes a contact email, suggesting this is the paper's own repository"
+    return None
+
+
+def _expand_brace_emails(text: str) -> list[str]:
+    expanded: list[str] = []
+    for local_parts, domain in BRACE_EMAIL_RE.findall(text):
+        for local in local_parts.split(","):
+            local = local.strip()
+            if local:
+                expanded.append(f"{local}@{domain}")
+    return expanded
 
 
 def parse_pdf_text_evidence(paper_id: str, pdf_url: str, text: str, observed_at: str | None = None) -> PaperTextEvidence:
     observed = observed_at or datetime.now(UTC).isoformat()
     contact_block = _extract_contact_block(text)
-    emails = _dedupe_keep_order(sorted(set(EMAIL_RE.findall(text))))
+    plain_emails = EMAIL_RE.findall(text)
+    brace_emails = _expand_brace_emails(text)
+    emails = _dedupe_keep_order(sorted(set(plain_emails) | set(brace_emails)))
     email_domains = sorted({email.split('@', 1)[1].lower() for email in emails})
     urls: list[EvidenceLink] = []
     github_urls: list[EvidenceLink] = []
-    for raw_url in URL_RE.findall(text):
+    previous_url_end = 0
+    for match in URL_RE.finditer(text):
+        raw_url = match.group(0)
         cleaned = _clean_url(raw_url)
+        is_github = 'github.com' in cleaned
+        notes = _ownership_hint_note(text, match.start(), match.end(), previous_url_end) if is_github else None
         link = EvidenceLink(
             url=cleaned,
-            label='code' if 'github.com' in cleaned else 'project',
+            label='code' if is_github else 'project',
             source='pdf_text',
             confidence='medium',
-            notes=None,
+            notes=notes,
         )
-        if 'github.com' in cleaned:
+        if is_github:
             github_urls.append(link)
         else:
             urls.append(link)
+        previous_url_end = match.end()
     return PaperTextEvidence(
         paper_id=paper_id,
         pdf_url=pdf_url,
