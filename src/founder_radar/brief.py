@@ -55,14 +55,21 @@ def render_founder_brief(candidate: CandidatePaper, authors: list[ResolvedAuthor
         evidence = _get(author, "evidence")
         profile_parts = [f"{key}={value or 'not found'}" for key, value in profiles.items()]
         evidence_claims = [_get(item, "claim") for item in evidence]
-        author_blocks.append("\n".join([
+        block_lines = [
             f"### {name}",
             f"- Identity confidence: {identity_confidence}",
             f"- Affiliation: {affiliation}",
             f"- Profiles: {', '.join(profile_parts)}",
             f"- Founder-relevant evidence: {'; '.join(evidence_claims)}",
             f"- Suggested outreach angle: {_outreach_angle(author)}",
-        ]))
+        ]
+        for signal in signals:
+            signal_type = _get(signal, "signal_type")
+            evidence_note = _get(signal, "evidence_note")
+            if signal_type == "notable_coauthor_name_match" and f"'{name}'" in evidence_note:
+                evidence_url = _get(signal, "evidence_url")
+                block_lines.append(f"- Notable network signal: {evidence_note} — {evidence_url}")
+        author_blocks.append("\n".join(block_lines))
         for item in evidence:
             claim = _get(item, "claim")
             source_url = _get(item, "source_url")

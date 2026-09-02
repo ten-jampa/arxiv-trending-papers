@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from founder_radar.models import CandidatePaper, FounderSignal, PaperTextEvidence
+from founder_radar.notable_people import find_notable_coauthor_matches, load_notable_people
 
 RL_HINTS = ("reinforcement learning", "rlhf", "grpo", "dapo", "policy optimization", "tool use", "tool-integrated")
 TOOLING_HINTS = ("infrastructure", "reliability", "batching", "latency", "on-premise", "real-time", "production-grade", "throughput", "verification")
@@ -19,7 +20,7 @@ def _signal(signal_type: str, paper_id: str, value: str | int | float | bool, co
     ).to_dict()
 
 
-def extract_founder_signals(candidate: CandidatePaper, paper_text: PaperTextEvidence) -> list[dict]:
+def extract_founder_signals(candidate: CandidatePaper, paper_text: PaperTextEvidence, notable_people_path=None) -> list[dict]:
     signals: list[dict] = []
     combined_text = f"{candidate.title} {candidate.abstract}".lower()
 
@@ -38,10 +39,27 @@ def extract_founder_signals(candidate: CandidatePaper, paper_text: PaperTextEvid
     if any(hint in combined_text for hint in BENCHMARK_HINTS):
         signals.append(_signal("benchmark_or_dataset_created", candidate.paper_id, True, "low", candidate.url, "Title or abstract mentions benchmark, dataset, or corpus language"))
 
+    notable_entries = load_notable_people(notable_people_path) if notable_people_path is not None else load_notable_people()
+    for match in find_notable_coauthor_matches(candidate.authors, notable_entries):
+        entry = match["entry"]
+        signals.append(
+            _signal(
+                "notable_coauthor_name_match",
+                candidate.paper_id,
+                True,
+                "low",
+                entry["evidence_url"],
+                f"Author name '{match['author_name']}' is a name match only (not a verified identity resolution) against watchlist entry '{entry['name']}': {entry['note']}",
+            )
+        )
+
     deduped: list[dict] = []
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str, str]] = set()
     for signal in signals:
-        key = (signal["signal_type"], signal["evidence_url"])
+        # Include evidence_note in the key: two distinct facts (e.g. two different
+        # people both linked from the same "About" page) must not be collapsed into
+        # one just because they happen to share an evidence_url.
+        key = (signal["signal_type"], signal["evidence_url"], signal["evidence_note"])
         if key not in seen:
             deduped.append(signal)
             seen.add(key)

@@ -109,3 +109,18 @@ A boolean or categorical founder-radar input used to prioritize candidate papers
 Examples: `code_repo_present`, `project_page_present`, `identity_confidence`, `benchmark_or_dataset_created`.
 
 A ranking signal is not itself a verdict and should not pretend to be a calibrated score unless real review data later supports calibration.
+
+
+### Notable Coauthor Signal
+
+A `founder_signals.json` entry (`notable_coauthor_name_match`) that flags
+when a paper's raw author list contains a name matching an entry in the
+manually curated, individually verified watchlist at
+`src/founder_radar/data/notable_people.json` (see
+`_docs/notable-people-watchlist.md`).
+
+This is a name-only match, not an identity resolution, and it must never
+be written into a `ResolvedAuthor`'s `identity_confidence` or `profiles`
+fields. It is always emitted at `low` confidence with an explicit "name
+match only (not a verified identity resolution)" caveat in the evidence
+note.

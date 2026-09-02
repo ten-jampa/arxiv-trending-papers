@@ -152,3 +152,35 @@ def test_render_founder_brief_outreach_angle_reflects_resolved_profile() -> None
 def test_render_stub_brief_removed() -> None:
     import founder_radar.brief as brief_module
     assert not hasattr(brief_module, "render_stub_brief")
+
+
+def test_render_founder_brief_surfaces_notable_coauthor_signal_next_to_author_name() -> None:
+    candidate = make_candidate()
+    author = ResolvedAuthor(
+        author_key="author-1",
+        name="Frank Hutter",
+        paper_author_string="Frank Hutter",
+        affiliation=None,
+        profiles={"semantic_scholar": None, "homepage": None, "lab_page": None, "github": None, "google_scholar": None, "dblp": None, "x": None, "linkedin": None},
+        identity_confidence="unresolved",
+        evidence=[EvidenceClaim(claim="Raw author preserved from arXiv metadata", source_url="https://arxiv.org/abs/2608.31142v1", observed_at="2026-09-01T00:00:00+00:00", confidence="high", notes=None)],
+        ambiguities=[],
+    )
+    signals = [
+        FounderSignal(
+            author_key=None,
+            paper_id=candidate.paper_id,
+            signal_type="notable_coauthor_name_match",
+            value=True,
+            confidence="low",
+            evidence_url="https://priorlabs.ai/about",
+            evidence_note="Author name 'Frank Hutter' is a name match only (not a verified identity resolution) against watchlist entry 'Frank Hutter': Founder and co-CEO of Prior Labs (TabPFN)",
+        )
+    ]
+
+    brief = render_founder_brief(candidate, [author], signals)
+    frank_section = brief.split("### Frank Hutter")[1].split("###")[0]
+
+    assert "Notable network signal" in frank_section
+    assert "Prior Labs" in frank_section
+    assert "https://priorlabs.ai/about" in frank_section

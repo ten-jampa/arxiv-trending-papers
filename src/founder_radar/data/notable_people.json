@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Jure Leskovec",
+    "note": "Stanford CS professor; co-founder of Kumo AI",
+    "evidence_url": "https://cs.stanford.edu/people/jure/bio.html",
+    "corroborating_url": "https://en.wikipedia.org/wiki/Jure_Leskovec",
+    "verified_at": "2026-09-02"
+  },
+  {
+    "name": "Frank Hutter",
+    "note": "Founder and co-CEO of Prior Labs (TabPFN)",
+    "evidence_url": "https://priorlabs.ai/about",
+    "corroborating_url": "https://uni-freiburg.de/brainlinks-braintools/from-a-nature-paper-to-a-billion-dollar-investment-by-sap/",
+    "verified_at": "2026-09-02"
+  },
+  {
+    "name": "Noah Hollmann",
+    "note": "Co-founder and CTO of Prior Labs (TabPFN)",
+    "evidence_url": "https://priorlabs.ai/about",
+    "corroborating_url": "https://www.noahhollmann.com/",
+    "verified_at": "2026-09-02"
+  }
+]
