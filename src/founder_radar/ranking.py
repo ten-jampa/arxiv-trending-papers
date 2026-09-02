@@ -8,6 +8,15 @@ def _get(obj, key: str):
 
 
 def rank_paper(signals: list[FounderSignal], identity_confidences: list[str]) -> dict:
+    """Categorical sourcing-priority tier, per the decision recorded in issue #5.
+
+    Tiers (decided, not fake-precise scores):
+      - source_now: strong paper/person/company-shaped signal; worth active follow-up.
+      - watch: relevant and plausibly useful, but not enough for outreach.
+      - needs_evidence: promising topic but missing author/project/institution evidence.
+      - skip: low sourcing value or too incremental/noisy.
+    """
+
     signal_types = {_get(signal, "signal_type") for signal in signals}
     reasons: list[str] = []
     direct_builder = "code_repo_present" in signal_types or "project_page_present" in signal_types
@@ -15,7 +24,7 @@ def rank_paper(signals: list[FounderSignal], identity_confidences: list[str]) ->
 
     if not signal_types:
         return {
-            "priority_bucket": "skip",
+            "priority_tier": "skip",
             "reasons": ["No founder-radar signals are present."],
         }
 
@@ -23,34 +32,28 @@ def rank_paper(signals: list[FounderSignal], identity_confidences: list[str]) ->
         reasons.append("Direct builder evidence is present.")
         reasons.append("At least one additional founder-radar signal family is present.")
         return {
-            "priority_bucket": "high",
+            "priority_tier": "source_now",
             "reasons": reasons,
         }
 
     if direct_builder:
         reasons.append("Direct builder evidence is present.")
         return {
-            "priority_bucket": "medium",
+            "priority_tier": "watch",
             "reasons": reasons,
         }
 
     if multiple_families:
         reasons.append("Multiple independent founder-radar signal families are present.")
         return {
-            "priority_bucket": "medium",
+            "priority_tier": "watch",
             "reasons": reasons,
         }
 
-    if signal_types:
-        reasons.append("One weaker founder-radar signal family is present.")
-        if any(level in {"low", "medium", "high"} for level in identity_confidences):
-            reasons.append("Some author identity evidence is available.")
-        return {
-            "priority_bucket": "low",
-            "reasons": reasons,
-        }
-
+    reasons.append("One weaker founder-radar signal family is present.")
+    if any(level in {"low", "medium", "high"} for level in identity_confidences):
+        reasons.append("Some author identity evidence is available.")
     return {
-        "priority_bucket": "skip",
-        "reasons": ["No founder-radar signals are present."],
+        "priority_tier": "needs_evidence",
+        "reasons": reasons,
     }

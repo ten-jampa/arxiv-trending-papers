@@ -23,6 +23,8 @@ def build_parser() -> argparse.ArgumentParser:
     founder_brief.add_argument("--output", type=Path, default=None, help="Write final Markdown brief to this path")
     founder_brief.add_argument("--artifacts-dir", type=Path, default=None, help="Directory for intermediate artifacts")
     founder_brief.add_argument("--llm-contact-parser", action="store_true", help="Use optional OpenAI contact-block cleanup after deterministic extraction")
+    founder_brief.add_argument("--people-dir", type=Path, default=Path("data/people"), help="Directory for the JSON-backed person registry; ingested automatically after each run")
+    founder_brief.add_argument("--no-sync-people", action="store_true", help="Skip automatic person-registry ingestion after generating the brief")
 
     sync_people = subparsers.add_parser(
         "sync-people",
@@ -96,6 +98,13 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
         detail_path = output_path.parent / AUTHOR_DETAIL_FILENAME
         detail_path.write_text(detail_text)
         print(f"Wrote {detail_path}")
+
+    if not args.no_sync_people:
+        summary = ingest_resolved_authors(candidate.paper_id, candidate.url, resolved_authors, args.people_dir)
+        print(
+            f"Synced {len(resolved_authors)} author(s) into person registry at {args.people_dir} "
+            f"({summary['person_count']} people, {summary['cluster_count']} cluster(s) needing review)"
+        )
     return 0
 
 

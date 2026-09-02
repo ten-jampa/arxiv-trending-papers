@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from founder_radar.models import CandidatePaper, FounderSignal, PaperTextEvidence, ResolvedAuthor
+from founder_radar.ranking import rank_paper
 
 WITHDRAWN_ABSTRACT_MARKERS = ("this paper has been withdrawn", "paper has been withdrawn")
 
@@ -186,6 +187,8 @@ def render_founder_brief(
     paper_text: PaperTextEvidence | None = None,
 ) -> str:
     recommendation, confidence, reason = _recommendation(candidate, signals)
+    identity_confidences = [_get(author, "identity_confidence") for author in authors]
+    priority = rank_paper(signals, identity_confidences=identity_confidences)
     categories = ", ".join(candidate.categories) if candidate.categories else "not found"
     authors_line = ", ".join(candidate.authors) if candidate.authors else "not found"
     paper_status_notes = _paper_status_notes(candidate, paper_text)
@@ -263,6 +266,7 @@ def render_founder_brief(
         f"- Recommendation: {recommendation}",
         f"- Confidence: {confidence}",
         f"- One-line reason: {reason}",
+        f"- Sourcing-priority tier: {priority['priority_tier']} ({'; '.join(priority['reasons'])})",
         *paper_status_notes,
         "",
         "## Paper",

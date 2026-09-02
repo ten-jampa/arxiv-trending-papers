@@ -40,6 +40,13 @@ Options documented in earlier drafts of this contract but not yet implemented:
 - `--no-semantic-scholar`: no-op today, because Semantic Scholar enrichment has not been implemented at all (nothing to skip). Add this flag only alongside real Semantic Scholar integration, not before.
 - `--raw-only`: not implemented. The CLI currently always generates the founder brief; there is no artifacts-only mode yet.
 
+After generating the brief, the CLI automatically ingests `resolved_authors.json` into the JSON-backed person registry (see `sync-people` below), unless `--no-sync-people` is passed. This closes the loop from single-paper brief to durable person records.
+
+Additional options for `founder-radar founder-brief` (implemented):
+
+- `--people-dir PATH`: directory for the JSON-backed person registry. Defaults to `data/people`. Ingested automatically after each run.
+- `--no-sync-people`: skip automatic person-registry ingestion after generating the brief.
+
 ## v0 Command: `founder-radar sync-people`
 
 Purpose: ingest one run's `resolved_authors.json` into the JSON-backed person registry described in `_docs/specs/person-registry-v0.md`. Papers are evidence; the person registry is the durable asset.
