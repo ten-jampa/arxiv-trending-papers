@@ -45,7 +45,7 @@ The first implementation should support one paper only. Batch discovery and moni
 1. Fetch one paper from arXiv.
 2. Normalize paper metadata into `candidate_paper.json`.
 3. Enumerate author strings from the paper.
-4. Resolve public author profiles only when evidence supports the match.
+4. Resolve public author profiles only when evidence supports the match; separately attach paper-native author evidence even when identity remains unresolved.
 5. Extract founder-relevant signals from verified paper metadata, PDF text, and resolved profiles.
 6. Generate a Markdown founder-sourcing brief.
 7. Mark unknowns explicitly instead of filling gaps with plausible nonsense.
@@ -73,11 +73,12 @@ The first implementation should support one paper only. Batch discovery and moni
 
 - `name`: normalized author name.
 - `paper_author_string`: original string from the paper.
-- `affiliation`: only if sourced.
+- `affiliation`: best paper-native affiliation display when sourced; not proof of current employment.
+- `paper_author_evidence`: paper-native emails, domains, affiliation lines, affiliation scope, ambiguous emails, confidence, and source URL.
 - `profiles`: Semantic Scholar, homepage, lab page, GitHub, Google Scholar, DBLP, X, LinkedIn when verified.
 - `identity_confidence`: `high`, `medium`, `low`, or `unresolved`.
 - `evidence`: source URL plus claim.
-- `ambiguities`: possible mistaken identities or unresolved conflicts.
+- `ambiguities`: possible mistaken identities, unmapped emails, paper-level affiliations, or unresolved conflicts.
 
 ### FounderSignal
 

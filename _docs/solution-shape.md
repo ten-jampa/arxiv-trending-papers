@@ -43,9 +43,11 @@ Each stage writes an inspectable artifact before the next stage runs.
 ### Author Resolver
 
 - Preserve raw author names.
-- Attempt Semantic Scholar author lookup if available.
+- Attach paper-native author evidence from PDF text: emails, domains, affiliation lines, affiliation scope, ambiguous emails, and paper-evidence confidence.
+- Attempt Semantic Scholar author lookup only when implemented/available.
 - Use direct links from source metadata/project pages when available.
-- Mark unresolved authors honestly.
+- Keep `identity_confidence` unresolved unless external public identity evidence is corroborated.
+- Preserve multi-author affiliation blocks as paper-level evidence instead of dropping them.
 - Write `resolved_authors.json`.
 
 ### Founder-Signal Extractor

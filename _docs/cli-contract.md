@@ -84,6 +84,7 @@ The CLI must not emit metrics or profiles that were not fetched.
 Examples:
 
 - If no affiliation is available, write `Affiliation: not found`.
+- If PDF contact evidence exists, preserve it under `paper_author_evidence` even when external identity remains unresolved.
 - If the PDF cannot be downloaded or parsed, write `PDF evidence: not checked` or `PDF evidence: unavailable` with the error.
 - If Semantic Scholar is skipped or fails, write `Semantic Scholar: not checked`.
 - If LinkedIn lookup cannot be corroborated beyond name, write `LinkedIn: unresolved`.
@@ -115,6 +116,7 @@ Examples:
 ## Authors To Watch
 ### <Name>
 - Identity confidence:
+- Paper-native evidence:
 - Affiliation:
 - Profiles:
 - Founder-relevant evidence:

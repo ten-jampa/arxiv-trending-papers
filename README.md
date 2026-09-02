@@ -21,6 +21,7 @@ one arXiv paper -> PDF evidence -> resolved authors -> founder signals -> Markdo
 - `_docs/vertical-slice-v0.md` — first implementation slice and acceptance criteria
 - `_docs/cli-contract.md` — command surface
 - `_docs/data-contract.md` — artifact schemas and evidence rules
+- `_docs/specs/person-registry-v0.md` — downstream JSON-backed people list / identity dedupe contract
 - `_docs/source-smoketests.md` — verified public-source behavior
 - `_docs/stack.md` — v0 stack decision
 - `_docs/manual-test.md` — first manual test scenario

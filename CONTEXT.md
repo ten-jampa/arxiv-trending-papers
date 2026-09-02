@@ -20,7 +20,15 @@ A candidate paper is not itself an investment opportunity; it is evidence that m
 
 A paper author string mapped to an evidence-backed public person record.
 
-An author is not resolved by name alone. Resolution requires corroborating evidence such as paper linkage, email/domain, affiliation block, Semantic Scholar record tied to the paper, LinkedIn profile evidence, project page, or linked GitHub profile.
+An author is not resolved by name alone. Resolution requires corroborating evidence such as paper linkage, Semantic Scholar record tied to the paper, LinkedIn profile evidence, project page, homepage, or linked GitHub profile.
+
+Paper-native email/domain/affiliation evidence is valuable but does not by itself mean external identity is resolved.
+
+### Paper Author Evidence
+
+Paper-native evidence attached to an author observation: raw author name, matched paper emails, email domains, affiliation lines, affiliation scope, ambiguous emails, confidence, and source URL.
+
+This can be high-confidence evidence from the PDF while `identity_confidence` remains `unresolved`.
 
 ### Unresolved Author
 
