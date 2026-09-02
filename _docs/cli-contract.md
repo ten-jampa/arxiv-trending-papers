@@ -20,12 +20,16 @@ https://arxiv.org/abs/2608.28447
 https://arxiv.org/pdf/2608.28447
 ```
 
-Options:
+Options (implemented):
 
-- `--output PATH`: write final Markdown brief to a path. If omitted, print to stdout and still write intermediate artifacts unless `--no-artifacts` exists later.
-- `--artifacts-dir PATH`: default `artifacts/<timestamp>-<arxiv-id>/`.
-- `--no-semantic-scholar`: skip Semantic Scholar author/paper enrichment.
-- `--raw-only`: fetch and write artifacts without generating judgment-heavy founder hypotheses.
+- `--output PATH`: write final Markdown brief to a path. Defaults to `<artifacts-dir>/founder_brief.md`.
+- `--artifacts-dir PATH`: directory for intermediate artifacts. Defaults to `artifacts/<arxiv-id>/`.
+- `--llm-contact-parser`: optional. After deterministic PDF contact-block extraction, send the bounded contact block to an OpenAI model (via `OPENAI_API_KEY` in the environment or a local `.env` file) to clean up affiliation lines and email attribution. Deterministic extraction remains the default and is not replaced; see `_docs/discovery-ranking.md` and `_docs/arxiv-rate-limits.md` for related design notes. Not documented anywhere else, so noted here explicitly.
+
+Options documented in earlier drafts of this contract but not yet implemented:
+
+- `--no-semantic-scholar`: no-op today, because Semantic Scholar enrichment has not been implemented at all (nothing to skip). Add this flag only alongside real Semantic Scholar integration, not before.
+- `--raw-only`: not implemented. The CLI currently always generates the founder brief; there is no artifacts-only mode yet.
 
 Required artifacts:
 
@@ -37,13 +41,16 @@ founder_signals.json
 founder_brief.md
 ```
 
-Exit codes:
+Exit codes (implemented):
 
 - `0`: success.
-- `1`: invalid input/config.
-- `2`: arXiv unavailable or paper not found.
-- `3`: enrichment source failed but arXiv succeeded and strict mode required it.
-- `4`: artifact write failure.
+- `1`: invalid arXiv ID or URL.
+- `2`: arXiv unavailable, rate-limited past retry budget, or paper not found.
+
+Exit codes documented in earlier drafts but not yet implemented as distinct paths:
+
+- `3`: was intended for "enrichment source failed but arXiv succeeded and strict mode required it." There is no strict/enrichment-failure mode yet; all current enrichment (contact parsing, author resolution) fails soft into `unresolved`/`not found` rather than raising.
+- `4`: was intended for artifact write failure. A write failure today raises an unhandled exception rather than a clean exit code.
 
 ## Later Command: `founder-radar smoke-sources`
 
@@ -89,7 +96,7 @@ Examples:
 # Founder-Sourcing Brief: <Paper Title>
 
 ## Verdict
-- Recommendation: reach out / watch / skip / manual diligence needed
+- Recommendation: `skip` / `watch` / `manual diligence needed` (`reach out` is a documented future value; current deterministic recommendation logic never produces it, since it requires stronger identity/outreach evidence than the pipeline currently resolves)
 - Confidence: high / medium / low
 - One-line reason:
 

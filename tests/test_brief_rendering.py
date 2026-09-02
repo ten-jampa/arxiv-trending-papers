@@ -113,3 +113,42 @@ def test_render_founder_brief_watch_confidence_increases_for_multiple_signal_fam
     brief = render_founder_brief(candidate, authors, signals)
     assert "- Recommendation: watch" in brief
     assert "- Confidence: medium" in brief
+
+
+def test_render_founder_brief_outreach_angle_reflects_unresolved_identity() -> None:
+    candidate = make_candidate()
+    unresolved_author = ResolvedAuthor(
+        author_key="author-1",
+        name="Yisen Xi",
+        paper_author_string="Yisen Xi",
+        affiliation=None,
+        profiles={"semantic_scholar": None, "homepage": None, "lab_page": None, "github": None, "google_scholar": None, "dblp": None, "x": None, "linkedin": None},
+        identity_confidence="unresolved",
+        evidence=[EvidenceClaim(claim="Raw author preserved from arXiv metadata", source_url="https://arxiv.org/abs/2608.31142v1", observed_at="2026-09-01T00:00:00+00:00", confidence="high", notes=None)],
+        ambiguities=[],
+    )
+    brief = render_founder_brief(candidate, [unresolved_author], [])
+    assert "not recommended" in brief.lower()
+    assert "unresolved" in brief.lower()
+
+
+def test_render_founder_brief_outreach_angle_reflects_resolved_profile() -> None:
+    candidate = make_candidate()
+    resolved_author = ResolvedAuthor(
+        author_key="author-1",
+        name="Yisen Xi",
+        paper_author_string="Yisen Xi",
+        affiliation="Independent Researcher, Beijing, China",
+        profiles={"semantic_scholar": None, "homepage": "https://example.com/yisen", "lab_page": None, "github": None, "google_scholar": None, "dblp": None, "x": None, "linkedin": None},
+        identity_confidence="high",
+        evidence=[EvidenceClaim(claim="Homepage links this paper", source_url="https://example.com/yisen", observed_at="2026-09-01T00:00:00+00:00", confidence="high", notes=None)],
+        ambiguities=[],
+    )
+    brief = render_founder_brief(candidate, [resolved_author], [])
+    assert "homepage" in brief.lower()
+    assert "not recommended" not in brief.lower()
+
+
+def test_render_stub_brief_removed() -> None:
+    import founder_radar.brief as brief_module
+    assert not hasattr(brief_module, "render_stub_brief")

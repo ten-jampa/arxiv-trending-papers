@@ -7,6 +7,17 @@ def _get(obj, key: str):
     return getattr(obj, key) if hasattr(obj, key) else obj[key]
 
 
+def _outreach_angle(author) -> str:
+    identity_confidence = _get(author, "identity_confidence")
+    profiles = _get(author, "profiles")
+    resolved_profiles = [key for key, value in profiles.items() if value]
+    if identity_confidence == "unresolved":
+        return "not recommended yet: identity is unresolved; find a corroborating public profile before any outreach"
+    if resolved_profiles:
+        return f"identity confidence is {identity_confidence} via {', '.join(resolved_profiles)}; review the evidence ledger before outreach"
+    return f"identity confidence is {identity_confidence} but no public profile is resolved; verify manually before outreach"
+
+
 def _recommendation(candidate: CandidatePaper, signals: list[FounderSignal]) -> tuple[str, str, str]:
     signal_types = {_get(signal, "signal_type") for signal in signals}
     if not signal_types:
@@ -50,7 +61,7 @@ def render_founder_brief(candidate: CandidatePaper, authors: list[ResolvedAuthor
             f"- Affiliation: {affiliation}",
             f"- Profiles: {', '.join(profile_parts)}",
             f"- Founder-relevant evidence: {'; '.join(evidence_claims)}",
-            "- Suggested outreach angle: manual diligence needed",
+            f"- Suggested outreach angle: {_outreach_angle(author)}",
         ]))
         for item in evidence:
             claim = _get(item, "claim")
@@ -109,25 +120,3 @@ def render_founder_brief(candidate: CandidatePaper, authors: list[ResolvedAuthor
         "",
     ]
     return "\n".join(sections)
-
-
-def render_stub_brief(candidate: CandidatePaper) -> str:
-    authors = ", ".join(candidate.authors) if candidate.authors else "not found"
-    categories = ", ".join(candidate.categories) if candidate.categories else "not found"
-    return f"""# Founder-Sourcing Brief: {candidate.title}
-
-## Status
-- This is the thin first slice.
-- Only arXiv metadata fetch and `candidate_paper.json` are implemented.
-- Author resolution, founder signals, and final sourcing judgment are not implemented yet.
-
-## Paper
-- arXiv: {candidate.url}
-- PDF: {candidate.pdf_url or 'not found'}
-- Authors: {authors}
-- Published: {candidate.published_at}
-- Categories: {categories}
-
-## Abstract
-{candidate.abstract}
-"""

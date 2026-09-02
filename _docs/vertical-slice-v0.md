@@ -71,15 +71,29 @@ Required behavior:
 
 ## Acceptance Criteria
 
-- [ ] One CLI command creates all required artifacts.
-- [ ] `candidate_paper.json` contains arXiv title, abstract, authors, categories, dates, and links.
-- [ ] `paper_text_evidence.json` contains PDF fetch status, extraction status, emails, domains, affiliation-ish lines, and URLs when found.
-- [ ] `resolved_authors.json` preserves raw author strings and marks unresolved authors honestly.
-- [ ] `founder_signals.json` contains only evidence-backed signals.
-- [ ] `founder_brief.md` includes verdict, paper summary, authors to watch, suggested outreach, unknowns, and evidence ledger.
-- [ ] All factual claims in the brief point to evidence.
-- [ ] Running with a known arXiv ID succeeds without credentials.
-- [ ] Tests cover ID parsing, arXiv fixture normalization, unresolved-author behavior, and brief rendering.
+- [x] One CLI command creates all required artifacts.
+- [x] `candidate_paper.json` contains arXiv title, abstract, authors, categories, dates, and links.
+- [x] `paper_text_evidence.json` contains PDF fetch status, extraction status, emails, domains, affiliation-ish lines, and URLs when found.
+- [x] `resolved_authors.json` preserves raw author strings and marks unresolved authors honestly.
+- [x] `founder_signals.json` contains only evidence-backed signals.
+- [x] `founder_brief.md` includes verdict, paper summary, authors to watch, suggested outreach, unknowns, and evidence ledger.
+- [x] All factual claims in the brief point to evidence.
+- [x] Running with a known arXiv ID succeeds without credentials.
+- [x] Tests cover ID parsing, arXiv fixture normalization, unresolved-author behavior, and brief rendering.
+
+Audited 2026-09-02 against a real run of `founder-radar founder-brief 2608.31142v1`
+(see git history for the exact commit). All nine criteria verified directly against
+generated artifact contents, not just code inspection. One known gap found and fixed
+during this audit: the per-author "Suggested outreach angle" line was previously a
+static string identical for every author regardless of evidence; it now reflects each
+author's actual `identity_confidence` and resolved profiles.
+
+Known doc/implementation mismatch, not yet resolved: the CLI contract above documents
+a `--no-semantic-scholar` flag, but Semantic Scholar enrichment was never implemented
+(the pipeline is deterministic-only, plus an optional `--llm-contact-parser` flag not
+mentioned in this doc). No flag was added to fake compliance; either implement
+Semantic Scholar enrichment and the flag together, or update this doc to drop the flag
+and document `--llm-contact-parser` instead.
 
 ## Manual Test Seed
 
