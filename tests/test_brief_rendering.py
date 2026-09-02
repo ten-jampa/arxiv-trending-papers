@@ -184,3 +184,33 @@ def test_render_founder_brief_surfaces_notable_coauthor_signal_next_to_author_na
     assert "Notable network signal" in frank_section
     assert "Prior Labs" in frank_section
     assert "https://priorlabs.ai/about" in frank_section
+
+
+def test_render_founder_brief_surfaces_paper_native_author_evidence() -> None:
+    candidate = make_candidate()
+    author = ResolvedAuthor(
+        author_key="author-1",
+        name="Minghui Xu",
+        paper_author_string="Minghui Xu",
+        affiliation="Stanford University",
+        profiles={"semantic_scholar": None, "homepage": None, "lab_page": None, "github": None, "google_scholar": None, "dblp": None, "x": None, "linkedin": None},
+        identity_confidence="unresolved",
+        evidence=[EvidenceClaim(claim="Paper-level affiliation block from PDF contact block", source_url="https://arxiv.org/pdf/2608.28447v1", observed_at="2026-09-01T00:00:00+00:00", confidence="low", notes="Stanford University")],
+        ambiguities=["Affiliation block was not explicitly mapped per author; stored as paper-level evidence."],
+        paper_author_evidence={
+            "emails": ["minghuix@stanford.edu"],
+            "email_domains": ["stanford.edu"],
+            "affiliation_lines": ["Stanford University"],
+            "affiliation_scope": "paper_level",
+            "paper_evidence_confidence": "high",
+        },
+    )
+
+    brief = render_founder_brief(candidate, [author], [])
+
+    assert "Paper-native evidence:" in brief
+    assert "minghuix@stanford.edu" in brief
+    assert "stanford.edu" in brief
+    assert "Stanford University" in brief
+    assert "paper_evidence_confidence=high" in brief
+    assert "Identity confidence: unresolved" in brief

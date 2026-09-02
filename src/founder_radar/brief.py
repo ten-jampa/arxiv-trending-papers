@@ -53,11 +53,28 @@ def render_founder_brief(candidate: CandidatePaper, authors: list[ResolvedAuthor
         affiliation = _get(author, "affiliation") or "not found"
         profiles = _get(author, "profiles")
         evidence = _get(author, "evidence")
+        paper_evidence = author.get("paper_author_evidence", {}) if isinstance(author, dict) else getattr(author, "paper_author_evidence", {})
         profile_parts = [f"{key}={value or 'not found'}" for key, value in profiles.items()]
         evidence_claims = [_get(item, "claim") for item in evidence]
+        paper_evidence_parts: list[str] = []
+        if paper_evidence:
+            emails = paper_evidence.get("emails") or []
+            domains = paper_evidence.get("email_domains") or []
+            affiliations = paper_evidence.get("affiliation_lines") or []
+            confidence = paper_evidence.get("paper_evidence_confidence") or "none"
+            scope = paper_evidence.get("affiliation_scope") or "none"
+            if emails:
+                paper_evidence_parts.append(f"emails={', '.join(emails)}")
+            if domains:
+                paper_evidence_parts.append(f"domains={', '.join(domains)}")
+            if affiliations:
+                paper_evidence_parts.append(f"affiliations={'; '.join(affiliations)} ({scope})")
+            paper_evidence_parts.append(f"paper_evidence_confidence={confidence}")
+        paper_evidence_line = "; ".join(paper_evidence_parts) if paper_evidence_parts else "not found"
         block_lines = [
             f"### {name}",
             f"- Identity confidence: {identity_confidence}",
+            f"- Paper-native evidence: {paper_evidence_line}",
             f"- Affiliation: {affiliation}",
             f"- Profiles: {', '.join(profile_parts)}",
             f"- Founder-relevant evidence: {'; '.join(evidence_claims)}",

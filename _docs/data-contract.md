@@ -89,7 +89,7 @@ Notes:
 author_key: string        # local run-scoped key
 name: string
 paper_author_string: string
-affiliation: string|null
+affiliation: string|null  # best paper-native affiliation display, not proof of current employment
 profiles:
   semantic_scholar: string|null
   homepage: string|null
@@ -100,9 +100,26 @@ profiles:
   x: string|null
   linkedin: string|null
 identity_confidence: high|medium|low|unresolved
+paper_author_evidence:
+  raw_author_name: string
+  emails: list[string]
+  email_domains: list[string]
+  affiliation_lines: list[string]
+  affiliation_scope: per_author|paper_level|none
+  ambiguous_emails: list[string]
+  paper_evidence_confidence: high|medium|ambiguous|none
+  source: paper_contact_block|paper_text_evidence
+  source_url: string
+  notes: list[string]
 evidence: list[EvidenceClaim]
 ambiguities: list[string]
 ```
+
+Notes:
+
+- `paper_author_evidence` is paper-native evidence only. It can be high confidence while `identity_confidence` remains `unresolved`.
+- Multi-author affiliation blocks should be preserved as `paper_level` evidence instead of being dropped.
+- LinkedIn/GitHub/homepage identity fields stay null unless corroborated by public profile evidence; do not infer them from paper-native evidence alone.
 
 ## EvidenceClaim
 
