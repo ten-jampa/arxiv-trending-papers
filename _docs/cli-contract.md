@@ -40,6 +40,30 @@ Options documented in earlier drafts of this contract but not yet implemented:
 - `--no-semantic-scholar`: no-op today, because Semantic Scholar enrichment has not been implemented at all (nothing to skip). Add this flag only alongside real Semantic Scholar integration, not before.
 - `--raw-only`: not implemented. The CLI currently always generates the founder brief; there is no artifacts-only mode yet.
 
+## v0 Command: `founder-radar sync-people`
+
+Purpose: ingest one run's `resolved_authors.json` into the JSON-backed person registry described in `_docs/specs/person-registry-v0.md`. Papers are evidence; the person registry is the durable asset.
+
+```bash
+founder-radar sync-people artifacts/<run_id> \
+  --people-dir data/people
+```
+
+Required input: `<artifacts-dir>/candidate_paper.json` and `<artifacts-dir>/resolved_authors.json` from a prior `founder-brief` run.
+
+Options:
+
+- `--people-dir PATH`: directory for person registry JSON files. Defaults to `data/people`.
+
+Behavior:
+
+- Creates a new `PersonRecord` per unresolved author unless a hard identifier (exact email match today; verified profile URL or Semantic Scholar author ID later) links to an existing person.
+- Never auto-merges on name similarity alone; same-name collisions without a hard identifier produce an `IdentityCluster` with `merge_status: needs_review`.
+- Appends one `PaperAuthorObservation` per ingested author to `author_observations.jsonl`, regardless of whether it created or linked a person.
+- Is idempotent to re-run: re-ingesting the same paper adds the paper to `papers_seen` without duplicating emails/domains, but does append a new observation record per run (observations are an append-only log, not deduped).
+
+Not yet implemented: LinkedIn candidate ingestion, Semantic Scholar-based merges, and the review UI writing to `review_feedback.jsonl` (see `_docs/specs/person-registry-v0.md`).
+
 Required artifacts:
 
 ```text

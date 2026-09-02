@@ -11,6 +11,7 @@ from founder_radar.brief import AUTHOR_DETAIL_FILENAME, AUTHOR_SUMMARY_THRESHOLD
 from founder_radar.contact_parser import apply_contact_parser, call_openai_contact_parser
 from founder_radar.founder_signals import extract_founder_signals
 from founder_radar.paper_text import extract_paper_text_evidence
+from founder_radar.person_registry import ingest_resolved_authors
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -22,6 +23,13 @@ def build_parser() -> argparse.ArgumentParser:
     founder_brief.add_argument("--output", type=Path, default=None, help="Write final Markdown brief to this path")
     founder_brief.add_argument("--artifacts-dir", type=Path, default=None, help="Directory for intermediate artifacts")
     founder_brief.add_argument("--llm-contact-parser", action="store_true", help="Use optional OpenAI contact-block cleanup after deterministic extraction")
+
+    sync_people = subparsers.add_parser(
+        "sync-people",
+        help="Ingest one run's resolved_authors.json into the JSON-backed person registry",
+    )
+    sync_people.add_argument("artifacts_dir", type=Path, help="Directory containing candidate_paper.json and resolved_authors.json")
+    sync_people.add_argument("--people-dir", type=Path, default=Path("data/people"), help="Directory for person registry JSON files")
     return parser
 
 
@@ -91,11 +99,35 @@ def cmd_founder_brief(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_sync_people(args: argparse.Namespace) -> int:
+    artifacts_dir: Path = args.artifacts_dir
+    candidate_path = artifacts_dir / "candidate_paper.json"
+    resolved_authors_path = artifacts_dir / "resolved_authors.json"
+    if not candidate_path.exists() or not resolved_authors_path.exists():
+        print(
+            f"Missing required artifacts in {artifacts_dir}: expected candidate_paper.json and resolved_authors.json",
+            file=sys.stderr,
+        )
+        return 1
+
+    candidate = json.loads(candidate_path.read_text())
+    resolved_authors = json.loads(resolved_authors_path.read_text())
+    paper_id = candidate.get("paper_id") or candidate.get("arxiv_id")
+    paper_url = candidate.get("url", "")
+
+    summary = ingest_resolved_authors(paper_id, paper_url, resolved_authors, args.people_dir)
+    print(f"Ingested {len(resolved_authors)} author(s) from {paper_id} into {args.people_dir}")
+    print(f"Registry now has {summary['person_count']} people, {summary['cluster_count']} identity cluster(s) needing review")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "founder-brief":
         return cmd_founder_brief(args)
+    if args.command == "sync-people":
+        return cmd_sync_people(args)
     parser.error(f"Unknown command: {args.command}")
     return 1
 
