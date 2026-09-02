@@ -1,0 +1,61 @@
+{
+  "paper_id": "arxiv:2207.01848v6",
+  "arxiv_id": "2207.01848v6",
+  "source": "arxiv",
+  "url": "https://arxiv.org/abs/2207.01848v6",
+  "pdf_url": "https://arxiv.org/pdf/2207.01848v6",
+  "title": "TabPFN: A Transformer That Solves Small Tabular Classification Problems in a Second",
+  "abstract": "We present TabPFN, a trained Transformer that can do supervised classification for small tabular datasets in less than a second, needs no hyperparameter tuning and is competitive with state-of-the-art classification methods. TabPFN performs in-context learning (ICL), it learns to make predictions using sequences of labeled examples (x, f(x)) given in the input, without requiring further parameter updates. TabPFN is fully entailed in the weights of our network, which accepts training and test samples as a set-valued input and yields predictions for the entire test set in a single forward pass. TabPFN is a Prior-Data Fitted Network (PFN) and is trained offline once, to approximate Bayesian inference on synthetic datasets drawn from our prior. This prior incorporates ideas from causal reasoning: It entails a large space of structural causal models with a preference for simple structures. On the 18 datasets in the OpenML-CC18 suite that contain up to 1 000 training data points, up to 100 purely numerical features without missing values, and up to 10 classes, we show that our method clearly outperforms boosted trees and performs on par with complex state-of-the-art AutoML systems with up to 230$\\times$ speedup. This increases to a 5 700$\\times$ speedup when using a GPU. We also validate these results on an additional 67 small numerical datasets from OpenML. We provide all our code, the trained TabPFN, an interactive browser demo and a Colab notebook at https://github.com/automl/TabPFN.",
+  "authors": [
+    "Noah Hollmann",
+    "Samuel M\u00fcller",
+    "Katharina Eggensperger",
+    "Frank Hutter"
+  ],
+  "published_at": "2022-07-05T07:17:43Z",
+  "updated_at": "2023-09-16T09:33:32Z",
+  "primary_category": "cs.LG",
+  "categories": [
+    "cs.LG",
+    "stat.ML"
+  ],
+  "comment": null,
+  "journal_ref": null,
+  "doi": null,
+  "links": [
+    {
+      "url": "https://arxiv.org/abs/2207.01848v6",
+      "label": "paper",
+      "source": "arxiv_link",
+      "confidence": "high",
+      "notes": null
+    },
+    {
+      "url": "https://arxiv.org/pdf/2207.01848v6",
+      "label": "pdf",
+      "source": "arxiv_link",
+      "confidence": "high",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/automl/TabPFN",
+      "label": "code",
+      "source": "abstract",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "source_hits": [
+    {
+      "source": "arxiv",
+      "source_url": "https://arxiv.org/abs/2207.01848v6",
+      "observed_at": "2026-09-02T15:05:21.719700+00:00",
+      "raw_location": null,
+      "confidence": "high"
+    }
+  ],
+  "candidate_reason": [
+    "user-supplied arXiv paper"
+  ],
+  "fetched_at": "2026-09-02T15:05:21.719700+00:00"
+}

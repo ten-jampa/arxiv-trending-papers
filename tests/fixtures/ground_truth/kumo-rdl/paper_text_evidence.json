@@ -1,0 +1,52 @@
+{
+  "paper_id": "arxiv:2312.04615v1",
+  "pdf_url": "https://arxiv.org/pdf/2312.04615v1",
+  "download_status": "success",
+  "text_extraction_status": "success",
+  "text_chars": 80734,
+  "contact_block": "Relational Deep Learning: Graph Representation\nLearning on Relational Databases\nMatthias Fey2,* , Weihua Hu2,* , Kexin Huang1,* , Jan Eric Lenssen2,3,* , Rishabh Ranjan1,* ,\nJoshua Robinson1,* , Rex Ying2,4 , Jiaxuan You2,5 , Jure Leskovec1,2\narXiv:2312.04615v1 [cs.LG] 7 Dec 2023\n*\nEqual contribution. Listed in alphabetical order.\n1",
+  "emails": [],
+  "email_domains": [],
+  "affiliation_lines": [],
+  "urls": [
+    {
+      "url": "https://relbench.stanford.edu",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://relbench.stanford.edu",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://www.kaggle",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pubmed/",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "github_urls": [
+    {
+      "url": "https://github.com/snap-stanford/relbench",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "observed_at": "2026-09-02T15:04:30.937587+00:00",
+  "errors": []
+}

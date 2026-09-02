@@ -1,0 +1,123 @@
+{
+  "paper_id": "arxiv:2207.01848v6",
+  "pdf_url": "https://arxiv.org/pdf/2207.01848v6",
+  "download_status": "success",
+  "text_extraction_status": "success",
+  "text_chars": 114481,
+  "contact_block": "Published as a conference paper at ICLR 2023\nTAB PFN: A T RANSFORMER T HAT S OLVES S MALL\nTABULAR C LASSIFICATION P ROBLEMS IN A S ECOND\nNoah Hollmann\u2217,1,2 Samuel M\u00fcller\u2217,1 Katharina Eggensperger1 Frank Hutter1,3\nUniversity of Freiburg, 2 Charit\u00e9 University Medicine Berlin\n3\nBosch Center for Artificial Intelligence * Equal contribution.\nCorrespondence to noah.hollmann@charite.de & muellesa@cs.uni-freiburg.de\narXiv:2207.01848v6 [cs.LG] 16 Sep 2023",
+  "emails": [
+    "muellesa@cs.uni-freiburg.de",
+    "noah.hollmann@charite.de"
+  ],
+  "email_domains": [
+    "charite.de",
+    "cs.uni-freiburg.de"
+  ],
+  "affiliation_lines": [
+    "University of Freiburg, 2 Charit\u00e9 University Medicine Berlin"
+  ],
+  "urls": [
+    {
+      "url": "https://colab.research.google.com/drive/1J0l1AtMV_",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://colab.research.google.com/drive/",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://huggingface.co/spaces/TabPFN/",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "http://archive",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "http://automl.org/book",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://arxiv.org/abs/2204.04875",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://openreview.net/forum?id=KSugKcbNf9",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://twitter.com/tunguz/status/",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "github_urls": [
+    {
+      "url": "https://github.com/automl/TabPFN",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/automl/",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/openml/automlbenchmark",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/openml/automlbenchmark",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/automl/TabPFNResults/",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "observed_at": "2026-09-02T15:05:21.720194+00:00",
+  "errors": []
+}

@@ -1,0 +1,70 @@
+{
+  "paper_id": "arxiv:2606.12688v2",
+  "arxiv_id": "2606.12688v2",
+  "source": "arxiv",
+  "url": "https://arxiv.org/abs/2606.12688v2",
+  "pdf_url": "https://arxiv.org/pdf/2606.12688v2",
+  "title": "M*: A Modular, Extensible, Serving System for Multimodal Models",
+  "abstract": "We are entering a new era of composite model architectures that integrate diverse components such as vision encoders, language backbones, diffusion and flow heads, audio codecs, action generators, and world-model predictors. Such architectures underpin a broad class of multimodal models, including unified multimodal models, omni models, speech-language models, vision-language-action policies, and world models. However, existing model serving frameworks were built on narrow assumptions about model structure, making them ill-suited to accommodate this new architectural diversity. Here we present M*, a universal serving system for efficient serving of composite AI models. M* represents models as dataflow graphs, processing requests spanning diverse modalities and tasks as traversals over these graphs. The core insight is a modular abstraction that supports arbitrary composition of model components, flexible placement onto a physical cluster, and model-agnostic optimizations within a distributed runtime. We call this abstraction the Walk Graph and show how it can concisely capture composite models from a broad range of families. We instantiate M* on representative models and find that it achieves, on average, 20% lower end-to-end latency than vLLM-Omni for text-to-image workloads on BAGEL, while delivering up to 2.9x lower real-time factor and 2.7x higher throughput for text-to-speech workloads on Qwen3-Omni. M* also outperforms the V-JEPA 2-AC rollout baseline for robotic planning by up to 12.5x. Thus, our work paves the road towards more efficient serving of complex models with minimal developer effort.",
+  "authors": [
+    "Atindra Jha",
+    "Naomi Sagan",
+    "Keisuke Kamahori",
+    "Irmak Sivgin",
+    "Rohan Sanda",
+    "Steven Gao",
+    "Mark Horowitz",
+    "Luke Zettlemoyer",
+    "Olivia Hsu",
+    "Jure Leskovec",
+    "Baris Kasikci",
+    "Stephanie Wang"
+  ],
+  "published_at": "2026-06-10T21:22:22Z",
+  "updated_at": "2026-06-13T05:57:49Z",
+  "primary_category": "cs.LG",
+  "categories": [
+    "cs.LG",
+    "cs.AI",
+    "cs.DC"
+  ],
+  "comment": "The codebase is available at https://github.com/mstar-project/mstar",
+  "journal_ref": null,
+  "doi": null,
+  "links": [
+    {
+      "url": "https://arxiv.org/abs/2606.12688v2",
+      "label": "paper",
+      "source": "arxiv_link",
+      "confidence": "high",
+      "notes": null
+    },
+    {
+      "url": "https://arxiv.org/pdf/2606.12688v2",
+      "label": "pdf",
+      "source": "arxiv_link",
+      "confidence": "high",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/mstar-project/mstar",
+      "label": "code",
+      "source": "arxiv_comment",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "source_hits": [
+    {
+      "source": "arxiv",
+      "source_url": "https://arxiv.org/abs/2606.12688v2",
+      "observed_at": "2026-09-02T15:04:22.650696+00:00",
+      "raw_location": null,
+      "confidence": "high"
+    }
+  ],
+  "candidate_reason": [
+    "user-supplied arXiv paper"
+  ],
+  "fetched_at": "2026-09-02T15:04:22.650696+00:00"
+}

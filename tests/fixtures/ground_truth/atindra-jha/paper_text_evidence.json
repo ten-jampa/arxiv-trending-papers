@@ -1,0 +1,184 @@
+{
+  "paper_id": "arxiv:2606.12688v2",
+  "pdf_url": "https://arxiv.org/pdf/2606.12688v2",
+  "download_status": "success",
+  "text_extraction_status": "success",
+  "text_chars": 69501,
+  "contact_block": "M*: A Modular, Extensible, Serving System\nfor Multimodal Models\nAtindra Jha1,\u2217 Naomi Sagan1,\u2217 Keisuke Kamahori2,\u2020 Irmak Sivgin1,\u2020\nRohan Sanda1 Steven Gao2 Mark Horowitz1 Luke Zettlemoyer2\nOlivia Hsu1,3 Jure Leskovec1,\u2021 Baris Kasikci2,\u2021 Stephanie Wang2,\u2021\narXiv:2606.12688v2 [cs.LG] 13 Jun 2026\n1\nStanford University\n\u2217",
+  "emails": [
+    "atindra@cs.stanford.edu"
+  ],
+  "email_domains": [
+    "cs.stanford.edu"
+  ],
+  "affiliation_lines": [
+    "Stanford University"
+  ],
+  "urls": [
+    {
+      "url": "https://arxiv.org/abs/2406.02430",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://openreview.net/forum?id=5xwyxupsLL",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://huggingface.co/ByteDance-Seed/BAGEL-7B-MoT",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://huggingface.co/canopylabs/orpheus-3b-0.1-ft",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://huggingface.co/facebook/vjepa2-vitg-fpc64-256",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://huggingface.co/datasets/lerobot/droid_100",
+      "label": "project",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "github_urls": [
+    {
+      "url": "https://github.com/sgl-project/sglang-omni",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/huggingface/diffusers",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm-omni",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/sgl-project/sglang-omni",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/vox-serve/vox-serve",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/facebookresearch/vjepa2",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/bytedance-seed/Bagel",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/canopyai/Orpheus-TTS",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/Physical-Intelligence/openpi",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/hubertsiuzdak/snac",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/huggingface/transformers",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/huggingface/diffusers",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/flashinfer-ai/flashinfer",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/kvcache-ai/Mooncake",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/Vchitect/VBench",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    },
+    {
+      "url": "https://github.com/BytedanceSpeech/seed-tts-eval",
+      "label": "code",
+      "source": "pdf_text",
+      "confidence": "medium",
+      "notes": null
+    }
+  ],
+  "observed_at": "2026-09-02T15:04:22.651311+00:00",
+  "errors": []
+}
